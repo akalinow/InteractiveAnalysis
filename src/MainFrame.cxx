@@ -4,6 +4,7 @@
 #include <TApplication.h>
 #include <MainFrame.h>
 
+#include <TStyle.h>
 #include <TH1F.h>
 #include <TGaxis.h>
 #include <TLine.h>
@@ -97,7 +98,7 @@ void MainFrame::AddHistoCanvas(){
 
     // The Canvas
    TRootEmbeddedCanvas* recanvas = new TRootEmbeddedCanvas("Histograms",fFrame,700,700);
-   fTCanvasLayout = new TGTableLayoutHints(0,3,0,6,
+   fTCanvasLayout = new TGTableLayoutHints(0,4,0,6,
                                  kLHintsExpandX|kLHintsExpandY |
                                  kLHintsShrinkX|kLHintsShrinkY |
                                  kLHintsFillX|kLHintsFillY);
@@ -105,7 +106,7 @@ void MainFrame::AddHistoCanvas(){
 
    TCanvas *fCanvas = recanvas->GetCanvas();
    fCanvas->MoveOpaque(kFALSE);
-   fCanvas->Divide(2,3);
+   fCanvas->Divide(3,3);
    //TVirtualPad *fPad = fCanvas->GetPad(1);
    fCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
                               "MainFrame", this,
@@ -116,6 +117,7 @@ void MainFrame::AddHistoCanvas(){
 
    hTest->FillRandom("gaus",100);
    hTest1->FillRandom("gaus",1000);
+   gStyle->SetOptStat(0);
 
    fCanvas->cd(1);
    hTest->DrawCopy();
@@ -148,12 +150,12 @@ void MainFrame::AddButtons(){
    UInt_t ind;
    for (ind = 0; ind < 6; ++ind) {
       TGTextButton* button = new TGTextButton(fFrame,shape_button_name[ind],ind);
-      TGTableLayoutHints *tloh = new TGTableLayoutHints(3,4,ind, ind+1,
+      TGTableLayoutHints *tloh = new TGTableLayoutHints(4,5,ind, ind+1,
                                     kLHintsExpandX|kLHintsExpandY |
                                     kLHintsShrinkX|kLHintsShrinkY |
                                     kLHintsFillX|kLHintsFillY);
       fFrame->AddFrame(button,tloh);
-      button->Resize(100,button->GetDefaultHeight());
+      button->Resize(50,button->GetDefaultHeight());
       //button->Connect("Clicked()","Viewer",this,"DoButton()");
    }
  }
@@ -162,7 +164,7 @@ void MainFrame::AddButtons(){
 void MainFrame::AddNumbersDialog(){
 
    fEntryDialog = new EntryDialog(fFrame);
-   TGTableLayoutHints *tloh = new TGTableLayoutHints(4,6,0,6,
+   TGTableLayoutHints *tloh = new TGTableLayoutHints(5,6,0,6,
                                     kLHintsExpandX|kLHintsExpandY |
                                     kLHintsShrinkX|kLHintsShrinkY |
                                     kLHintsFillX|kLHintsFillY);
@@ -199,15 +201,9 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
 
     TVirtualPad *aCurrentPad = gPad->GetSelectedPad();
     aCurrentPad->cd();
-    /*
-    int px = gPad->GetEventX();
-     float uxmin = aCurrentPad->GetUxmin();
-     float uxmax = aCurrentPad->GetUxmax();
-     float localXMinInPixel =  aCurrentPad->XtoAbsPixel(uxmin);
-     float localXMaxInPixel =  aCurrentPad->XtoAbsPixel(uxmax);
-     float pixelToLocalX = (uxmax - uxmin)/(localXMaxInPixel - localXMinInPixel);
-     float localX = (x - localXMinInPixel)*pixelToLocalX + uxmin;
-     */
+    int padNumber = aCurrentPad->GetNumber();
+    if(padNumber==1) return;
+
      float localX = aCurrentPad->AbsPixeltoX(x);
      gVirtualX->DrawLine(localX,0,localX,1);
      /*
@@ -221,30 +217,10 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
    }
  }
   if(event == kButton2Double) std::cout<<"event: "<<event<<" x = "<<x<<" y ="<<y<<std::endl;
-      /*
-      int aId = select->GetUniqueID();
-      int pxold = gPad->GetUniqueID();
-   int px = gPad->GetEventX();
-   int py = gPad->GetEventY();
-   float uxmin = gPad->GetUxmin();
-   float uxmax = gPad->GetUxmax();
-   float uymin = gPad->GetUxmin();
-   float uymax = gPad->GetUxmax();
-   int pxmin = gPad->XtoAbsPixel(uxmin);
-   int pxmax = gPad->XtoAbsPixel(uxmax);
-   int pymin = gPad->YtoAbsPixel(uymin);
-   int pymax = gPad->YtoAbsPixel(uymax);
-   if(pxold) gVirtualX->DrawLine(pxold,pymin,pxold,pymax);
-   gVirtualX->DrawLine(px,pymin,px,pymax);
-*/
+
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void MainFrame::HandleMouseWheel(Event_t *event)
-{
-   // Handle mouse wheel to scroll.
-   std::cout<<"event: "<<event<<std::endl;
-}
 
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

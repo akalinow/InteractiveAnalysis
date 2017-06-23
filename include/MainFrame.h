@@ -76,8 +76,6 @@ public:
 
    void HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y, TObject *sel);
 
-   void HandleMouseWheel(Event_t *event);
-
 private:
 
    TGDockableFrame    *fMenuDock;
