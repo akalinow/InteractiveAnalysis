@@ -1,11 +1,11 @@
 /**
- @file    HistoContainer.h
+ @file    HistoManager.h
  @brief Wraps HistoCreators and provides data to the GUI
  @author   kzawisto
  @created:   2015-11-04
  **************************************************************/
-#ifndef INCLUDE_HISTOCONTAINER_H_
-#define INCLUDE_HISTOCONTAINER_H_
+#ifndef INCLUDE_HistoManager_H_
+#define INCLUDE_HistoManager_H_
 #include<string>
 #include <vector>
 #include<memory>
@@ -18,19 +18,25 @@ using namespace std;
 class HistoCreator;
 using namespace boost::property_tree;
 
+class TCanvas;
+
 /// Proxy between GUI and DataIO.so
-class HistoContainer {
+class HistoManager {
 	public:
 
 		///constructor, loads config from json and constructs HistoCreators
-		HistoContainer(string json_path);
+		HistoManager(string json_path);
 
 		///Get rid of Creators
-		~HistoContainer();
+		~HistoManager();
 
 		bool isGood() const { return good;};
 
-		const vector<MyHistogramWrapper*> & getGuiHistos() const {return guiHistos;}
+		MyHistogramWrapper* getGuiPrimaryHisto(unsigned int iHisto);
+
+	  MyHistogramWrapper* getGuiSecondaryHisto(unsigned int iHisto);
+
+		void drawHistos(TCanvas *aCanvas);
 
 		void buildGuiHistos();
 
@@ -40,13 +46,18 @@ class HistoContainer {
 
 	private:
 
+		void drawPrimaryHistos(TCanvas *aCanvas);
+
+		void drawSecondaryHistos(TCanvas *aCanvas);
+
     ///HistoCreators, construct histograms, store bins to display
 		vector< HistoCreator* > creators;
 
-    vector<MyHistogramWrapper*> guiHistos;
+    vector<MyHistogramWrapper*> guiHistosPrimary;
+		vector<MyHistogramWrapper*> guiHistosSecondary;
 
 			/// Whether histograms were loaded successufy and can be drawn
 		bool good;
 };
 
-#endif /* INCLUDE_HISTOCONTAINER_H_ */
+#endif /* INCLUDE_HistoManager_H_ */

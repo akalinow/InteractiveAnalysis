@@ -14,6 +14,7 @@
 #include <TObject.h>
 #include <TClass.h>
 #include <EntryDialog.h>
+#include <HistoManager.h>
 
 enum ETestCommandIdentifiers {
    M_FILE_OPEN,
@@ -70,18 +71,26 @@ class MainFrame : public TGMainFrame {
 public:
    MainFrame(const TGWindow *p, UInt_t w, UInt_t h);
    virtual ~MainFrame();
-
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
 
    void HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y, TObject *sel);
 
+   void setHistoManager(HistoManager *aHistoManager);
+
 private:
+
+   void AddTopMenu();
+   void SetTheFrame();
+   void AddHistoCanvas();
+   void AddButtons();
+   void AddNumbersDialog();
 
    TGDockableFrame    *fMenuDock;
 
    TGCompositeFrame   *fFrame;
    TGCanvas           *fCanvasWindow;
+   TCanvas            *fCanvas;
 
    TGMenuBar          *fMenuBar;
    TGPopupMenu        *fMenuFile, *fMenuHelp;
@@ -91,15 +100,12 @@ private:
 
    EntryDialog *fEntryDialog;
 
-   void AddTopMenu();
+   HistoManager *fHistoManager;
 
-   void SetTheFrame();
+   int fCutSide = -1;
+   bool fIgnoreCursor = false;
 
-   void AddHistoCanvas();
 
-   void AddButtons();
-
-   void AddNumbersDialog();
 
 };
 /////////////////////////////////////////////////////////

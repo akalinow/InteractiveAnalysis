@@ -15,7 +15,7 @@ SET( CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
 
 add_library(guiAnalysisLib SHARED ${PROJECT_SRC_PATH}/MainFrame.cxx ${PROJECT_SRC_PATH}/EntryDialog.cxx /
                                   ${PROJECT_SRC_PATH}/DataSource.cxx ${PROJECT_SRC_PATH}/HistoConfig.cxx /
-                                  ${PROJECT_SRC_PATH}/HistoCreator.cxx ${PROJECT_SRC_PATH}/HistoContainer.cxx /
+                                  ${PROJECT_SRC_PATH}/HistoCreator.cxx ${PROJECT_SRC_PATH}/HistoManager.cxx /
                                   ${PROJECT_SRC_PATH}/MyHistogramWrapper.cxx /
                                   guiAnalysisDict.cxx)
 

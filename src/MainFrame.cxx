@@ -40,6 +40,12 @@ MainFrame::~MainFrame(){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void MainFrame::setHistoManager(HistoManager *aHistoManager) {
+  fHistoManager = aHistoManager;
+  if(fCanvas) fHistoManager->drawHistos(fCanvas);
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 void MainFrame::AddTopMenu(){
 
   fMenuDock = new TGDockableFrame(this);
@@ -104,7 +110,7 @@ void MainFrame::AddHistoCanvas(){
                                  kLHintsFillX|kLHintsFillY);
    fFrame->AddFrame(recanvas,fTCanvasLayout);
 
-   TCanvas *fCanvas = recanvas->GetCanvas();
+   fCanvas = recanvas->GetCanvas();
    fCanvas->MoveOpaque(kFALSE);
    fCanvas->Divide(3,3);
    //TVirtualPad *fPad = fCanvas->GetPad(1);
@@ -112,32 +118,7 @@ void MainFrame::AddHistoCanvas(){
                               "MainFrame", this,
                               "HandleEmbeddedCanvas(Int_t,Int_t,Int_t,TObject*)");
 
-   TH1F *hTest = new TH1F("hTest","",10,-1,1);
-   TH1F *hTest1 = new TH1F("hTest1","",10,-1,1);
-
-   hTest->FillRandom("gaus",100);
-   hTest1->FillRandom("gaus",1000);
    gStyle->SetOptStat(0);
-
-   fCanvas->cd(1);
-   hTest->DrawCopy();
-
-   gPad->Update();
-   Float_t rightmax = 1.1*hTest1->GetMaximum();
-   Float_t scale = gPad->GetUymax()/rightmax;
-   hTest1->SetLineColor(kRed);
-   hTest1->Scale(scale);
-   hTest1->DrawCopy("same");
-
-   //draw an axis on the right side
-   TGaxis *axis = new TGaxis(gPad->GetUxmax(),gPad->GetUymin(),
-         gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
-   axis->SetLineColor(kRed);
-   axis->SetLabelColor(kRed);
-   axis->Draw();
-
-   fCanvas->cd(2);
-   hTest1->DrawCopy();
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -192,10 +173,12 @@ Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
-                                      TObject *sel)
-{
+                                      TObject *sel){
   ///Enums defined in Buttons.h ROOT file.
-  if(event == kMouseMotion){
+  std::cout<<"event = "<<event<<std::endl;
+  if(event == kButton1) fIgnoreCursor=!fIgnoreCursor;
+
+  if(event == kMouseMotion && !fIgnoreCursor){
      TObject *select = gPad->GetSelected();
      if(select && std::string(select->GetName())=="TFrame"){
 
@@ -205,19 +188,24 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
     if(padNumber==1) return;
 
      float localX = aCurrentPad->AbsPixeltoX(x);
-     gVirtualX->DrawLine(localX,0,localX,1);
-     /*
-     TLine aLine(0,0,0,0);
-     aLine.SetLineColor(2);
-     aLine.DrawLine(localX,0,localX,1);
-     aLine.SetLineWidth(0);
-     */
-     //aCurrentPad->Update();
+     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(padNumber-1)->getHisto();
+     int binNumber = aHisto->FindBin(localX);
+
+     std::cout<<"fCutSide = "<<fCutSide<<std::endl;
+
+     if(fCutSide==-1){
+     fHistoManager->getGuiPrimaryHisto(padNumber-1)->setCutLow(binNumber);
+     fHistoManager->getGuiSecondaryHisto(padNumber-1)->setCutLow(binNumber);
+   }
+   if(fCutSide==+1){
+      fHistoManager->getGuiPrimaryHisto(padNumber-1)->setCutHigh(binNumber);
+     fHistoManager->getGuiSecondaryHisto(padNumber-1)->setCutHigh(binNumber);
+   }
+     fHistoManager->drawHistos(fCanvas);
+     fCanvas->Update();
      std::cout<<" localX = "<<localX<<std::endl;
    }
  }
-  if(event == kButton2Double) std::cout<<"event: "<<event<<" x = "<<x<<" y ="<<y<<std::endl;
-
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
