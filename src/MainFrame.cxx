@@ -23,12 +23,13 @@ MainFrame::MainFrame(const TGWindow *p, UInt_t w, UInt_t h)
    SetTheFrame();
    AddHistoCanvas();
    AddButtons();
-   AddNumbersDialog();
+  AddNumbersDialog();
    SetWindowName("guiAnalysis");
-   MapSubwindows();
 
-   Resize();
-   MapWindow();
+
+   //MapSubwindows();
+   //Resize();
+   //MapWindow();
  }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -43,6 +44,14 @@ MainFrame::~MainFrame(){
 void MainFrame::setHistoManager(HistoManager *aHistoManager) {
   fHistoManager = aHistoManager;
   if(fCanvas) fHistoManager->drawHistos(fCanvas);
+
+  //AddNumbersDialog();
+  if(fEntryDialog) fEntryDialog->initialize(fHistoManager);
+
+  MapSubwindows();
+  Resize();
+  MapWindow();
+
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -92,7 +101,7 @@ void MainFrame::AddTopMenu(){
 void MainFrame::SetTheFrame(){
 
    fFrame = new TGCompositeFrame(this,400,400,kSunkenFrame);
-   TGTableLayout* tlo = new TGTableLayout(fFrame, 6, 6, 1);
+   TGTableLayout* tlo = new TGTableLayout(fFrame, 6, 12, 1);
    fFrame->SetLayoutManager(tlo);
    fFrameLayout = new TGLayoutHints(kLHintsTop|kLHintsLeft|
                                           kLHintsExpandX|kLHintsExpandY);
@@ -104,7 +113,7 @@ void MainFrame::AddHistoCanvas(){
 
     // The Canvas
    TRootEmbeddedCanvas* recanvas = new TRootEmbeddedCanvas("Histograms",fFrame,700,700);
-   fTCanvasLayout = new TGTableLayoutHints(0,4,0,6,
+   fTCanvasLayout = new TGTableLayoutHints(0,8,0,6,
                                  kLHintsExpandX|kLHintsExpandY |
                                  kLHintsShrinkX|kLHintsShrinkY |
                                  kLHintsFillX|kLHintsFillY);
@@ -131,24 +140,25 @@ void MainFrame::AddButtons(){
    UInt_t ind;
    for (ind = 0; ind < 6; ++ind) {
       TGTextButton* button = new TGTextButton(fFrame,shape_button_name[ind],ind);
-      TGTableLayoutHints *tloh = new TGTableLayoutHints(4,5,ind, ind+1,
+      TGTableLayoutHints *tloh = new TGTableLayoutHints(8,9,ind, ind+1,
                                     kLHintsExpandX|kLHintsExpandY |
                                     kLHintsShrinkX|kLHintsShrinkY |
                                     kLHintsFillX|kLHintsFillY);
       fFrame->AddFrame(button,tloh);
       button->Resize(50,button->GetDefaultHeight());
-      //button->Connect("Clicked()","Viewer",this,"DoButton()");
+      //button->Connect("Clicked()","MainFrame",this,"DoButton()");
    }
  }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void MainFrame::AddNumbersDialog(){
 
-   fEntryDialog = new EntryDialog(fFrame);
-   TGTableLayoutHints *tloh = new TGTableLayoutHints(5,6,0,6,
+   fEntryDialog = new EntryDialog(fFrame, this);
+   TGTableLayoutHints *tloh = new TGTableLayoutHints(9,12,0,6,
                                     kLHintsExpandX|kLHintsExpandY |
                                     kLHintsShrinkX|kLHintsShrinkY |
                                     kLHintsFillX|kLHintsFillY);
+   this->Connect("CutChanged(Int_t, Bool_t, Float_t, Int_t)", "EntryDialog",fEntryDialog,"HandleCutChanged(Int_t, Bool_t, Float_t, Int_t)");
    fFrame->AddFrame(fEntryDialog,tloh);
  }
 /////////////////////////////////////////////////////////
@@ -162,6 +172,13 @@ void MainFrame::CloseWindow(){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void MainFrame::CutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents){
+
+EmitVA("CutChanged(Int_t, Bool_t, Float_t, Int_t)", 4, iCut, isLow, value, nDataEvents);
+
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
    // Handle messages send to the MainFrame object. E.g. all menu button
    // messages.
@@ -172,11 +189,35 @@ Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+Bool_t MainFrame::ProcessMessage(Long_t msg){
+
+   for(unsigned int iHisto=0;iHisto<4;++iHisto){
+     float theCut = fEntryDialog->getLowCut(iHisto)->GetNumber();
+     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
+     int binNumber = aHisto->FindBin(theCut);
+     fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumber);
+     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumber);
+
+     theCut = fEntryDialog->getHighCut(iHisto)->GetNumber();
+     binNumber = aHisto->FindBin(theCut);
+     fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumber);
+     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
+   }
+
+   fHistoManager->drawHistos(fCanvas);
+   fCanvas->Update();
+
+   return kTRUE;
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
                                       TObject *sel){
   ///Enums defined in Buttons.h ROOT file.
-  std::cout<<"event = "<<event<<std::endl;
   if(event == kButton1) fIgnoreCursor=!fIgnoreCursor;
+
+  if(event == kButton2) fCutSide*=-1;
+
 
   if(event == kMouseMotion && !fIgnoreCursor){
      TObject *select = gPad->GetSelected();
@@ -191,8 +232,6 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
      TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(padNumber-1)->getHisto();
      int binNumber = aHisto->FindBin(localX);
 
-     std::cout<<"fCutSide = "<<fCutSide<<std::endl;
-
      if(fCutSide==-1){
      fHistoManager->getGuiPrimaryHisto(padNumber-1)->setCutLow(binNumber);
      fHistoManager->getGuiSecondaryHisto(padNumber-1)->setCutLow(binNumber);
@@ -201,9 +240,13 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
       fHistoManager->getGuiPrimaryHisto(padNumber-1)->setCutHigh(binNumber);
      fHistoManager->getGuiSecondaryHisto(padNumber-1)->setCutHigh(binNumber);
    }
+
+     bool isLow = (fCutSide==-1);
      fHistoManager->drawHistos(fCanvas);
+     int nDataEvents = aHisto->Integral();
+     CutChanged(padNumber-1, isLow, localX, nDataEvents);
+
      fCanvas->Update();
-     std::cout<<" localX = "<<localX<<std::endl;
    }
  }
 }

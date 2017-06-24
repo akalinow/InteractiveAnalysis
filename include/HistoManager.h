@@ -36,6 +36,12 @@ class HistoManager {
 
 	  MyHistogramWrapper* getGuiSecondaryHisto(unsigned int iHisto);
 
+		std::vector<std::string> getHistoNames() const;
+
+		std::vector<float> getLowCuts() const;
+
+		std::vector<float> getHighCuts() const;
+
 		void drawHistos(TCanvas *aCanvas);
 
 		void buildGuiHistos();

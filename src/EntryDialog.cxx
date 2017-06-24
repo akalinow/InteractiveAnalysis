@@ -46,34 +46,13 @@
 #include <TGTableLayout.h>
 
 #include "EntryDialog.h"
+#include "MainFrame.h"
+#include "HistoManager.h"
 
-
-// TGNumberEntry widget test dialog
-const char *const EntryDialog::numlabel[13] = {
-   "Integer",
-   "One digit real",
-   "Two digit real",
-   "Three digit real",
-   "Four digit real",
-   "Real",
-   "Degree.min.sec",
-   "Min:sec",
-   "Hour:min",
-   "Hour:min:sec",
-   "Day/month/year",
-   "Month/day/year",
-   "Hex"
-};
-
-const Double_t EntryDialog::numinit[13] = {
-   12345, 1.0, 1.00, 1.000, 1.0000, 1.2E-12,
-   90 * 3600, 120 * 60, 12 * 60, 12 * 3600 + 15 * 60,
-   19991121, 19991121, (Double_t) 0xDEADFACE
-};
-
-EntryDialog::EntryDialog(const TGWindow * p)
- : TGCompositeFrame(p, 10, 10, kHorizontalFrame)
-{
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+EntryDialog::EntryDialog(const TGWindow * p, MainFrame * aFrame)
+ : TGCompositeFrame(p, 10, 10, kHorizontalFrame), theMainFrame(aFrame){
    // build widgets
 
    // use hierarchical cleani
@@ -83,97 +62,86 @@ EntryDialog::EntryDialog(const TGWindow * p)
    TGFont *myfont = fClient->GetFont("-adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1");
    if (myfont) myGC.SetFont(myfont->GetFontHandle());
 
+
    fF1 = new TGVerticalFrame(this, 200, 300);
    fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
    AddFrame(fF1, fL1);
-   fL2 = new TGLayoutHints(kLHintsCenterY | kLHintsRight, 2, 2, 2, 2);
-   for (int i = 0; i < 13; i++) {
-      fF[i] = new TGHorizontalFrame(fF1, 200, 30);
-      fF1->AddFrame(fF[i], fL2);
-      fNumericEntries[i] = new TGNumberEntry(fF[i], numinit[i], 12, i + 20,
-                                             (TGNumberFormat::EStyle) i);
-      fNumericEntries[i]->Associate(this);
-      fF[i]->AddFrame(fNumericEntries[i], fL2);
-      fLabel[i] = new TGLabel(fF[i], numlabel[i], myGC(), myfont->GetFontStruct());
-      fF[i]->AddFrame(fLabel[i], fL2);
-   }
-   fF2 = new TGVerticalFrame(this, 200, 500);
+   fL2 = new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2);
    fL3 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
-   AddFrame(fF2, fL3);
-   fLowerLimit = new TGCheckButton(fF2, "lower limit:", 4);
-   fLowerLimit->Associate(this);
-   fF2->AddFrame(fLowerLimit, fL3);
-   fLimits[0] = new TGNumberEntry(fF2, 0, 12, 10);
-   fLimits[0]->SetLogStep(kFALSE);
-   fLimits[0]->Associate(this);
-   fF2->AddFrame(fLimits[0], fL3);
-   fUpperLimit = new TGCheckButton(fF2, "upper limit:", 5);
-   fUpperLimit->Associate(this);
-   fF2->AddFrame(fUpperLimit, fL3);
-   fLimits[1] = new TGNumberEntry(fF2, 0, 12, 11);
-   fLimits[1]->SetLogStep(kFALSE);
-   fLimits[1]->Associate(this);
-   fF2->AddFrame(fLimits[1], fL3);
-   fPositive = new TGCheckButton(fF2, "Positive", 6);
-   fPositive->Associate(this);
-   fF2->AddFrame(fPositive, fL3);
-   fNonNegative = new TGCheckButton(fF2, "Non negative", 7);
-   fNonNegative->Associate(this);
-   fF2->AddFrame(fNonNegative, fL3);
-   fSetButton = new TGTextButton(fF2, " Set ", 2);
-   fSetButton->Associate(this);
-   fF2->AddFrame(fSetButton, fL3);
-   fExitButton = new TGTextButton(fF2, " Close ", 1);
-   fExitButton->Associate(this);
-   fF2->AddFrame(fExitButton, fL3);
+   fL4 = new TGLayoutHints(kLHintsRight, 2, 2, 2, 2);
 
-   // set dialog box title
-   //SetWindowName("Number Entry Test");
-   //SetIconName("Number Entry Test");
-   //SetClassHints("NumberEntryDlg", "NumberEntryDlg");
+   fGframe = new TGGroupFrame(fF1, "Number of DATA events:");
+   fDataLabel = new TGLabel(fGframe, "No input.");
+   fGframe->AddFrame(fDataLabel, new TGLayoutHints(kLHintsTop | kLHintsLeft,
+                                               5, 5, 5, 5));
+   fF1->AddFrame(fGframe, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
 
-   //fClient->WaitFor(this);
 }
-
-EntryDialog::~EntryDialog()
-{
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+EntryDialog::~EntryDialog(){
    // dtor
 }
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void EntryDialog::initialize(HistoManager * aHistoManager){
 
-void EntryDialog::SetLimits()
-{
-   Double_t min = fLimits[0]->GetNumber();
-   Bool_t low = (fLowerLimit->GetState() == kButtonDown);
-   Double_t max = fLimits[1]->GetNumber();
-   Bool_t high = (fUpperLimit->GetState() == kButtonDown);
-   TGNumberFormat::ELimit lim;
-   if (low && high) {
-      lim = TGNumberFormat::kNELLimitMinMax;
-   } else if (low) {
-      lim = TGNumberFormat::kNELLimitMin;
-   } else if (high) {
-      lim = TGNumberFormat::kNELLimitMax;
-   } else {
-      lim = TGNumberFormat::kNELNoLimits;
+   fGframe1 = new TGGroupFrame(fF1, "Event selections:");
+
+ for(unsigned int iHisto=0;iHisto<4;++iHisto){
+     TH1F *aHisto = aHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
+     std::string hName(aHisto->GetName());
+     float lowX = aHisto->GetBinLowEdge(0);
+     float highX = aHisto->GetBinLowEdge(aHisto->GetNbinsX());
+     float step = aHisto->GetBinWidth(1);
+     addHistoCutsFrame(hName, lowX, highX, step);
    }
-   Bool_t pos = (fPositive->GetState() == kButtonDown);
-   Bool_t nneg = (fNonNegative->GetState() == kButtonDown);
-   TGNumberFormat::EAttribute attr;
-   if (pos) {
-      attr = TGNumberFormat::kNEAPositive;
-   } else if (nneg) {
-      attr = TGNumberFormat::kNEANonNegative;
-   } else {
-      attr = TGNumberFormat::kNEAAnyNumber;
-   }
-   for (int i = 0; i < 13; i++) {
-      fNumericEntries[i]->SetFormat(fNumericEntries[i]->GetNumStyle(), attr);
-      fNumericEntries[i]->SetLimits(lim, min, max);
-   }
+      fF1->AddFrame(fGframe1, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
+      fF1->Layout();
 }
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float highX, float step){
 
-Bool_t EntryDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t /*parm2*/)
-{
+      TGGC myGC = *fClient->GetResourcePool()->GetFrameGC();
+      TGFont *myfont = fClient->GetFont("-adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1");
+      if (myfont) myGC.SetFont(myfont->GetFontHandle());
+
+      TGHorizontalFrame *aHorizontalFrame = new TGHorizontalFrame(fGframe1, 200, 30);
+      fF.push_back(aHorizontalFrame);
+      fGframe1->AddFrame(aHorizontalFrame, fL2);
+
+      TGNumberEntry *aNumberEntry = new TGNumberEntry(aHorizontalFrame,lowX,5,0, TGNumberFormat::EStyle::kNESRealTwo);
+      aNumberEntry->Connect("ValueSet(Long_t)","MainFrame",theMainFrame,"ProcessMessage(Long_t)");
+      aNumberEntry->Associate(this);
+      fLowCuts.push_back(aNumberEntry);
+      aHorizontalFrame->AddFrame(aNumberEntry, fL2);
+
+      TGLabel *aLabel = new TGLabel(aHorizontalFrame, ("<"+hName+"<").c_str(), myGC(), myfont->GetFontStruct());
+      fLabel.push_back(aLabel);
+      aHorizontalFrame->AddFrame(aLabel, fL2);
+
+      aNumberEntry = new TGNumberEntry(aHorizontalFrame,highX,5, 0, TGNumberFormat::EStyle::kNESRealTwo);
+      aNumberEntry->Connect("ValueSet(Long_t)","MainFrame",theMainFrame,"ProcessMessage(Long_t)");
+      aNumberEntry->Associate(this);
+      fHighCuts.push_back(aNumberEntry);
+      aHorizontalFrame->AddFrame(aNumberEntry, fL2);
+
+
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void EntryDialog::HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents){
+
+  if(isLow) fLowCuts[iCut]->SetNumber(value);
+  else fHighCuts[iCut]->SetNumber(value);
+
+  fDataLabel->SetText(Form("%ld",nDataEvents));
+
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+Bool_t EntryDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t /*parm2*/){
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       {
@@ -190,7 +158,6 @@ Bool_t EntryDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t /*parm2*/)
                   // set button
                case 2:
                   {
-                     SetLimits();
                      break;
                   }
                }
@@ -202,3 +169,5 @@ Bool_t EntryDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t /*parm2*/)
    }
    return kTRUE;
 }
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////

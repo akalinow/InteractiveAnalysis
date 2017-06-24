@@ -95,6 +95,42 @@ else return 0;
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+std::vector<std::string> HistoManager::getHistoNames() const {
+
+	std::vector<std::string> hNames;
+
+	for(auto &aHisto :guiHistosPrimary){
+	 std::string aName(aHisto->getHisto()->GetName());
+	 hNames.push_back(aName);
+ }
+	return hNames;
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+std::vector<float> HistoManager::getLowCuts() const {
+
+	std::vector<float> hCuts;
+
+	for(auto &aHisto :guiHistosPrimary){
+	 float aCut = aHisto->getFCutLow();
+	 hCuts.push_back(aCut);
+ }
+	return hCuts;
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+std::vector<float> HistoManager::getHighCuts() const{
+
+	std::vector<float> hCuts;
+
+	for(auto &aHisto :guiHistosPrimary){
+	 float aCut = aHisto->getFCutHigh();
+	 hCuts.push_back(aCut);
+ }
+	return hCuts;
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 void HistoManager::drawHistos(TCanvas *aCanvas){
 
 drawPrimaryHistos(aCanvas);
@@ -125,7 +161,7 @@ void HistoManager::drawSecondaryHistos(TCanvas *aCanvas){
       TH1F *aHisto = guiHistosSecondary[iPad]->getHisto();
    		Float_t rightmax = 1.1*aHisto->GetMaximum();
 			if(rightmax<1) rightmax = 1.0;
-   		Float_t scale = gPad->GetUymax()/rightmax;			
+   		Float_t scale = gPad->GetUymax()/rightmax;
    		aHisto->SetLineColor(kRed);
    		aHisto->Scale(scale);
    		aHisto->DrawCopy("same hist");

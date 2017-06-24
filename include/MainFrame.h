@@ -74,9 +74,14 @@ public:
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
 
+///Process message from EntryDialog
+    virtual Bool_t ProcessMessage(Long_t msg);
+
    void HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y, TObject *sel);
 
    void setHistoManager(HistoManager *aHistoManager);
+
+   void CutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents);
 
 private:
 

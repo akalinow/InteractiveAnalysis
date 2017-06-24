@@ -7,34 +7,47 @@
 #include <TGNumberEntry.h>
 #include <TGButton.h>
 
+class MainFrame;
+class HistoManager;
+
 class EntryDialog : public TGCompositeFrame {
 
-private:
-   TGVerticalFrame      *fF1;
-   TGVerticalFrame      *fF2;
-   TGHorizontalFrame    *fF[13];
-   TGLayoutHints        *fL1;
-   TGLayoutHints        *fL2;
-   TGLayoutHints        *fL3;
-   TGLabel              *fLabel[13];
-   TGNumberEntry        *fNumericEntries[13];
-   TGNumberEntry        *fLimits[2];
-   TGCheckButton        *fLowerLimit;
-   TGCheckButton        *fUpperLimit;
-   TGCheckButton        *fPositive;
-   TGCheckButton        *fNonNegative;
-   TGButton             *fSetButton;
-   TGButton             *fExitButton;
-
-   static const char *const numlabel[13];
-   static const Double_t numinit[13];
-
 public:
-   EntryDialog(const TGWindow *p);
+   EntryDialog(const TGWindow *p, MainFrame *aFrame);
+
+   void initialize(HistoManager *aManager);
+
    virtual ~EntryDialog();
 
-   void SetLimits();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
+
+   void HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents);
+
+   const TGNumberEntry * getLowCut(unsigned int iCut) const {return fLowCuts[iCut];};
+
+   const TGNumberEntry * getHighCut(unsigned int iCut) const {return fHighCuts[iCut];};
+
+
+private:
+
+  void addHistoCutsFrame(const std::string &hName, float lowX, float highX, float step);
+
+   MainFrame *theMainFrame;
+
+   TGVerticalFrame      *fF1;
+   std::vector<TGHorizontalFrame*>   fF;
+   std::vector<TGLabel*> fLabel;
+   std::vector<TGNumberEntry*> fLowCuts;
+   std::vector<TGNumberEntry*> fHighCuts;
+
+   TGLayoutHints        *fL1, *fL2, *fL3, *fL4;
+
+   TGGroupFrame *fGframe, *fGframe1;
+   TGLabel *fDataLabel;
+
+
+  std::vector<std::string> histoNames;
+  std::vector<float> histoLowRanges, histoHighRanges;
 };
 
 #endif
