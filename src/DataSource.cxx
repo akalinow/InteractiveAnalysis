@@ -6,6 +6,9 @@
  **************************************************************/
 #include <DataSource.h>
 
+#include <cstring>
+#include <iostream>
+
 #define DATA_PRELOAD_TRESHOLD 300000000
 ///Wrapper for a (char*) chunk of memory, used by PreloadedDataSourse
 struct DataBuffer{
@@ -17,10 +20,10 @@ struct DataBuffer{
 DataSource::DataSource(string path) : file1(path.c_str(), fstream::in | fstream::binary){
 }
 
-unsigned int DataSource::read( int bytes) {
-	unsigned int i =0;
-	file1.read((char*)(&i),bytes);
-	return i;
+const unsigned int & DataSource::read(const unsigned int & bytes) {
+	readValue =0;
+	file1.read((char*)(&readValue),bytes);
+	return readValue;
 }
 
 DataSource::~DataSource() {
@@ -32,12 +35,17 @@ PreloadedDataSource::PreloadedDataSource(DataBuffer * buf)  {
 	iter=0;
 }
 
-unsigned int PreloadedDataSource::read(int bytes) {
-	unsigned int i = 0;
-	unsigned char* c = (unsigned char*) &i;
-	for(int j =0;j<bytes;++j) c[j]= buffer->buf[iter+j];
+void PreloadedDataSource::skipData(const unsigned int & count){
+	iter+=count;
+}
+
+const unsigned int & PreloadedDataSource::read(const unsigned int & bytes) {
+
+	readValue = 0;
+	std::memcpy(&readValue, &buffer->buf[iter],bytes);
 	iter+=bytes;
-	return i;
+
+  return readValue;
 }
 
 PreloadedDataSource::~PreloadedDataSource() {

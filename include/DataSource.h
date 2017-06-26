@@ -18,16 +18,20 @@ class IDataSource{
 public:
 
 	IDataSource(){}
-	virtual unsigned int read(int bytes)=0;
+	virtual const unsigned int & read(const unsigned int & bytes)=0;
+
+  virtual void skipData(const unsigned int & count) {};
+
 	virtual bool good(){return true;}
 	virtual ~IDataSource(){};
 };
 ///Regular DataSource, loads from multiplexed binary file each time.
 class DataSource :public IDataSource{
 	fstream file1;
+	unsigned int readValue = 0;
 public:
 	DataSource(string path);
-	virtual unsigned int read(int bytes);
+	virtual const unsigned int & read(const unsigned int & bytes);
 	virtual ~DataSource();
 };
 struct DataBuffer;
@@ -45,9 +49,12 @@ public:
 class PreloadedDataSource : public IDataSource{
 	DataBuffer * buffer;
 	long int iter;
+	unsigned int readValue = 0;
+
 public:
 	PreloadedDataSource(DataBuffer * buf);
-	virtual unsigned int read(int bytes);
+	virtual const unsigned int & read(const unsigned int & bytes);
+	virtual void skipData(const unsigned int & count);
 	virtual ~PreloadedDataSource();
 };
 #endif /* INCLUDE_DATASOURCE_H_ */

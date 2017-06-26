@@ -63,18 +63,24 @@ EntryDialog::EntryDialog(const TGWindow * p, MainFrame * aFrame)
    if (myfont) myGC.SetFont(myfont->GetFontHandle());
 
 
-   fF1 = new TGVerticalFrame(this, 200, 300);
+   fF1 = new TGVerticalFrame(this, 300, 500);
    fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
    AddFrame(fF1, fL1);
    fL2 = new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2);
    fL3 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
    fL4 = new TGLayoutHints(kLHintsRight, 2, 2, 2, 2);
 
-   fGframe = new TGGroupFrame(fF1, "Number of DATA events:");
-   fDataLabel = new TGLabel(fGframe, "No input.");
-   fGframe->AddFrame(fDataLabel, new TGLayoutHints(kLHintsTop | kLHintsLeft,
+   fGframeDATA = new TGGroupFrame(fF1, "Number of DATA events:");
+   fDataLabelDATA = new TGLabel(fGframeDATA, "No input.");
+   fGframeDATA->AddFrame(fDataLabelDATA, new TGLayoutHints(kLHintsTop | kLHintsLeft,
                                                5, 5, 5, 5));
-   fF1->AddFrame(fGframe, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
+   fF1->AddFrame(fGframeDATA, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
+
+   fGframeMC = new TGGroupFrame(fF1, "Number of MC events:");
+   fDataLabelMC = new TGLabel(fGframeMC, "No input.");
+   fGframeMC->AddFrame(fDataLabelMC, new TGLayoutHints(kLHintsTop | kLHintsLeft,
+                                               5, 5, 5, 5));
+   fF1->AddFrame(fGframeMC, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
 
 }
 /////////////////////////////////////////////////////////
@@ -86,17 +92,23 @@ EntryDialog::~EntryDialog(){
 /////////////////////////////////////////////////////////
 void EntryDialog::initialize(HistoManager * aHistoManager){
 
-   fGframe1 = new TGGroupFrame(fF1, "Event selections:");
+   //fGframeCuts = new TGGroupFrame(fF1, "Event selections:");
 
- for(unsigned int iHisto=0;iHisto<4;++iHisto){
+   fGCanvasCuts = new TGCanvas(fF1, 500, 520);
+   fContainer = new TGCompositeFrame(fGCanvasCuts->GetViewPort(), kVerticalFrame);
+   fGCanvasCuts->SetContainer(fContainer);
+
+ for(unsigned int iHisto=0;iHisto<aHistoManager->getNumberOfHistos();++iHisto){
      TH1F *aHisto = aHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
      std::string hName(aHisto->GetName());
      float lowX = aHisto->GetBinLowEdge(0);
      float highX = aHisto->GetBinLowEdge(aHisto->GetNbinsX());
      float step = aHisto->GetBinWidth(1);
+     lowX = -999;
+     highX = 999;
      addHistoCutsFrame(hName, lowX, highX, step);
    }
-      fF1->AddFrame(fGframe1, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
+      fF1->AddFrame(fGCanvasCuts, new TGLayoutHints(kLHintsExpandX, 2, 2, 1, 1));
       fF1->Layout();
 }
 /////////////////////////////////////////////////////////
@@ -107,9 +119,9 @@ void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float 
       TGFont *myfont = fClient->GetFont("-adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1");
       if (myfont) myGC.SetFont(myfont->GetFontHandle());
 
-      TGHorizontalFrame *aHorizontalFrame = new TGHorizontalFrame(fGframe1, 200, 30);
+      TGHorizontalFrame *aHorizontalFrame = new TGHorizontalFrame(fContainer, 200, 30);
       fF.push_back(aHorizontalFrame);
-      fGframe1->AddFrame(aHorizontalFrame, fL2);
+      fContainer->AddFrame(aHorizontalFrame, fL2);
 
       TGNumberEntry *aNumberEntry = new TGNumberEntry(aHorizontalFrame,lowX,5,0, TGNumberFormat::EStyle::kNESRealTwo);
       aNumberEntry->Connect("ValueSet(Long_t)","MainFrame",theMainFrame,"ProcessMessage(Long_t)");
@@ -134,13 +146,14 @@ void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float 
 void EntryDialog::HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents){
 
   std::cout<<"iCut: "<<iCut
-    <<"value: "<<value
+    <<" value: "<<value
     <<std::endl;
 
   if(isLow) fLowCuts[iCut]->SetNumber(value);
   else fHighCuts[iCut]->SetNumber(value);
 
-  fDataLabel->SetText(Form("%ld",nDataEvents));
+  fDataLabelDATA->SetText(Form("%ld",nDataEvents));
+  fDataLabelMC->SetText(Form("%ld",0));
 
 }
 /////////////////////////////////////////////////////////

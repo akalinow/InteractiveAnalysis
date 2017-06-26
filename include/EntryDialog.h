@@ -6,6 +6,8 @@
 #include <TGLabel.h>
 #include <TGNumberEntry.h>
 #include <TGButton.h>
+#include <TGCanvas.h>
+#include <TGListTree.h>
 
 class MainFrame;
 class HistoManager;
@@ -42,9 +44,11 @@ private:
 
    TGLayoutHints        *fL1, *fL2, *fL3, *fL4;
 
-   TGGroupFrame *fGframe, *fGframe1;
-   TGLabel *fDataLabel;
+   TGGroupFrame *fGframeDATA, *fGframeMC;// *fGframeCuts;
+   TGLabel *fDataLabelDATA, *fDataLabelMC;
 
+   TGCanvas *fGCanvasCuts;
+   TGCompositeFrame  *fContainer;
 
   std::vector<std::string> histoNames;
   std::vector<float> histoLowRanges, histoHighRanges;

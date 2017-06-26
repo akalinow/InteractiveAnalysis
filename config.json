@@ -12,7 +12,7 @@
    			"name":"mass4Mu",
    			"bins":128,
    			"min":0,
-   			"max":128
+   			"max":256
    		},
       {
    			"name":"nMuons",
@@ -191,7 +191,7 @@
    			"name":"mass4Mu",
    			"bins":128,
    			"min":0,
-   			"max":128
+   			"max":256
    		},
       {
    			"name":"nMuons",

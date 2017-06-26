@@ -17,7 +17,7 @@ MainFrame::MainFrame(const TGWindow *p, UInt_t w, UInt_t h)
 
    SetCleanup(kDeepCleanup);
    SetWMPosition(500,0);
-   SetWMSize(1000,700);
+   SetWMSize(1200,700);
 
    AddTopMenu();
    SetTheFrame();
@@ -191,12 +191,14 @@ Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
 /////////////////////////////////////////////////////////
 Bool_t MainFrame::ProcessMessage(Long_t msg){
 
-    //fHistoManager->getNumberOfHistos()
+  std::cout<<"MainFrame::ProcessMessage Begin"<<std::endl;
 
-   for(unsigned int iHisto=0;iHisto<4;++iHisto){
+   unsigned int nHistos = fHistoManager->getNumberOfHistos();
+   for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      float theCut = fEntryDialog->getLowCut(iHisto)->GetNumber();
      TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
      int binNumber = aHisto->FindBin(theCut);
+     if(binNumber>0) --binNumber;
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumber);
      fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumber);
 
@@ -210,12 +212,15 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
    fHistoManager->drawHistos(fCanvas);
    fCanvas->Update();
 
+     std::cout<<"MainFrame::ProcessMessage End"<<std::endl;
+
    return kTRUE;
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
                                       TObject *sel){
+
   ///Enums defined in Buttons.h ROOT file.
   if(event == kButton1) fIgnoreCursor=!fIgnoreCursor;
 
@@ -223,6 +228,9 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
 
 
   if(event == kMouseMotion && !fIgnoreCursor){
+
+    std::cout<<"MainFrame::HandleEmbeddedCanvas Begin"<<std::endl;
+
      TObject *select = gPad->GetSelected();
      if(select && std::string(select->GetName())=="TFrame"){
 
@@ -250,9 +258,9 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
      float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
      if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
      CutChanged(padNumber-1, isLow, cutValue, nDataEvents);
-
      fCanvas->Update();
    }
+    std::cout<<"MainFrame::HandleEmbeddedCanvas End"<<std::endl;
  }
 }
 ////////////////////////////////////////////////////////

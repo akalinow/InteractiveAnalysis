@@ -61,18 +61,26 @@ void HistoCreator::processTree() {
  * Loads data from DataSource and fills bins
  */
 void HistoCreator::createHistos() {
+
 	writeZeros();
 	IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
-	unsigned int val [hc.vec.size()];
-	for (int i = 0; i < hc.numOfEvents; ++i){
-			int l = 0;
-			for (int k = 0; k < hc.vec.size(); ++k){
-				val[k]=ids->read( hc.vec[k].bytes);
-				if(val[k] < cutsLow[k] or val[k]>= cutsHigh[k]) l = hc.vec.size();
+	unsigned int nHistos = hc.vec.size();
+	unsigned int val [nHistos];
+
+	unsigned int tmp = 9;
+	unsigned int iHisto = 0, iHisto1 = 0;
+	bool eventPass = true;
+
+	for (unsigned int iEvent = 0; iEvent < hc.numOfEvents; ++iEvent){
+		 eventPass = true;
+			for (iHisto = 0; eventPass && iHisto < nHistos; ++iHisto){
+				val[iHisto]=ids->read(hc.vec[iHisto].bytes);
+				if(val[iHisto] < cutsLow[iHisto] or val[iHisto]>= cutsHigh[iHisto]){
+					eventPass = false;
+					ids->skipData(nHistos - 1 - iHisto);
+				}
 			}
-			for(;l<hc.vec.size();++l){
-				histos[l][val[l]]++;
-			}
+			if(eventPass) for(iHisto=0;iHisto<tmp;++iHisto) histos[iHisto][val[iHisto]]++;
 	}
 }
 void HistoCreator::createHistosOld() {
