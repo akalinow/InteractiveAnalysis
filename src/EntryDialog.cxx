@@ -117,7 +117,7 @@ void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float 
       fLowCuts.push_back(aNumberEntry);
       aHorizontalFrame->AddFrame(aNumberEntry, fL2);
 
-      TGLabel *aLabel = new TGLabel(aHorizontalFrame, ("<"+hName+"<").c_str(), myGC(), myfont->GetFontStruct());
+      TGLabel *aLabel = new TGLabel(aHorizontalFrame, ("<="+hName+"<").c_str(), myGC(), myfont->GetFontStruct());
       fLabel.push_back(aLabel);
       aHorizontalFrame->AddFrame(aLabel, fL2);
 
@@ -132,6 +132,10 @@ void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void EntryDialog::HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents){
+
+  std::cout<<"iCut: "<<iCut
+    <<"value: "<<value
+    <<std::endl;
 
   if(isLow) fLowCuts[iCut]->SetNumber(value);
   else fHighCuts[iCut]->SetNumber(value);

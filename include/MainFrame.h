@@ -108,7 +108,7 @@ private:
    HistoManager *fHistoManager;
 
    int fCutSide = -1;
-   bool fIgnoreCursor = false;
+   bool fIgnoreCursor = true;
 
 
 

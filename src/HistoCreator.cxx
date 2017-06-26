@@ -73,7 +73,6 @@ void HistoCreator::createHistos() {
 			for(;l<hc.vec.size();++l){
 				histos[l][val[l]]++;
 			}
-
 	}
 }
 void HistoCreator::createHistosOld() {

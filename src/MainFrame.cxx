@@ -191,6 +191,8 @@ Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
 /////////////////////////////////////////////////////////
 Bool_t MainFrame::ProcessMessage(Long_t msg){
 
+    //fHistoManager->getNumberOfHistos()
+
    for(unsigned int iHisto=0;iHisto<4;++iHisto){
      float theCut = fEntryDialog->getLowCut(iHisto)->GetNumber();
      TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
@@ -200,6 +202,7 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
 
      theCut = fEntryDialog->getHighCut(iHisto)->GetNumber();
      binNumber = aHisto->FindBin(theCut);
+     if(binNumber>0) --binNumber;
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumber);
      fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
    }
@@ -243,8 +246,10 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
 
      bool isLow = (fCutSide==-1);
      fHistoManager->drawHistos(fCanvas);
-     int nDataEvents = aHisto->Integral();
-     CutChanged(padNumber-1, isLow, localX, nDataEvents);
+     int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
+     if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
+     CutChanged(padNumber-1, isLow, cutValue, nDataEvents);
 
      fCanvas->Update();
    }

@@ -1,18 +1,24 @@
 {
 "dat_file1":{
    "options":{
-   	"numOfEvents":3851,
+   	"numOfEvents":1679358,
    	"treeName":"Summary/tree",
    	"branchName":"entry",
    	"myDataFile":"bindata_4Mu_Data",
-    "rootDataFile":"RootAnalysis_Analysis4Mu_MC.root"
+    "rootDataFile":"RootAnalysis_Analysis4Mu_Data.root"
    },
    "histos":[
    		{
    			"name":"mass4Mu",
    			"bins":128,
    			"min":0,
-   			"max":256
+   			"max":128
+   		},
+      {
+   			"name":"nMuons",
+   			"bins":8,
+   			"min":0,
+   			"max":8
    		},
       {
    			"name":"massZ1",
@@ -27,16 +33,154 @@
    			"max":128
    		},
       {
+   			"name":"muon1Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon2Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon3Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon4Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon1Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon2Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon3Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon4Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon1Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon2Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon3Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon4Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon1SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon2SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon3SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon4SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon1Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
+   			"name":"muon2Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
+   			"name":"muon3Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
+   			"name":"muon4Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
    			"name":"muon1ID",
+   			"bins":256,
+   			"min":0,
+   			"max":256
+   		},
+      {
+   			"name":"muon2ID",
+   			"bins":256,
+   			"min":0,
+   			"max":256
+   		},
+      {
+   			"name":"muon3ID",
+   			"bins":256,
+   			"min":0,
+   			"max":256
+   		},
+      {
+   			"name":"muon4ID",
    			"bins":256,
    			"min":0,
    			"max":256
    		}
    ]
  },
-  "dat_file2":{
+ "dat_file2":{
    "options":{
-   	"numOfEvents":60000,
+   	"numOfEvents":85838,
    	"treeName":"Summary/tree",
    	"branchName":"entry",
    	"myDataFile":"bindata_4Mu_MC",
@@ -47,7 +191,13 @@
    			"name":"mass4Mu",
    			"bins":128,
    			"min":0,
-   			"max":256
+   			"max":128
+   		},
+      {
+   			"name":"nMuons",
+   			"bins":8,
+   			"min":0,
+   			"max":8
    		},
       {
    			"name":"massZ1",
@@ -62,11 +212,149 @@
    			"max":128
    		},
       {
+   			"name":"muon1Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon2Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon3Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon4Pt",
+   			"bins":128,
+   			"min":0,
+   			"max":128
+   		},
+      {
+   			"name":"muon1Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon2Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon3Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon4Eta",
+   			"bins":16,
+   			"min":-3,
+   			"max":3
+   		},
+      {
+   			"name":"muon1Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon2Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon3Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon4Phi",
+   			"bins":16,
+   			"min":-4,
+   			"max":4
+   		},
+      {
+   			"name":"muon1SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon2SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon3SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon4SIP",
+   			"bins":16,
+   			"min":0,
+   			"max":16
+   		},
+      {
+   			"name":"muon1Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
+   			"name":"muon2Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
+   			"name":"muon3Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
+   			"name":"muon4Isolation",
+   			"bins":32,
+   			"min":0,
+   			"max":5
+   		},
+      {
    			"name":"muon1ID",
+   			"bins":256,
+   			"min":0,
+   			"max":256
+   		},
+      {
+   			"name":"muon2ID",
+   			"bins":256,
+   			"min":0,
+   			"max":256
+   		},
+      {
+   			"name":"muon3ID",
+   			"bins":256,
+   			"min":0,
+   			"max":256
+   		},
+      {
+   			"name":"muon4ID",
    			"bins":256,
    			"min":0,
    			"max":256
    		}
    ]
-  }
+ }
 }

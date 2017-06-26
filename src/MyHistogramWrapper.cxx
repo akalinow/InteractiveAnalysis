@@ -16,7 +16,6 @@
 
 MyHistogramWrapper::MyHistogramWrapper(std::string title, int n, float xmin, float  xmax){
 
-  std::cout<<"title: "<<title<<std::endl;
   theHisto = new TH1F(title.c_str(),title.c_str(),n,xmin,xmax);
 
 }

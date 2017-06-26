@@ -10,7 +10,7 @@ set (PROJECT_SRC_PATH "src/")
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS RIO GenVector Gui)
 include(${ROOT_USE_FILE})
-ROOT_GENERATE_DICTIONARY(guiAnalysisDict MainFrame.h LINKDEF include/RootDictLinkDef.h)
+ROOT_GENERATE_DICTIONARY(guiAnalysisDict include/MainFrame.h LINKDEF include/RootDictLinkDef.h)
 SET( CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
 
 add_library(guiAnalysisLib SHARED ${PROJECT_SRC_PATH}/MainFrame.cxx ${PROJECT_SRC_PATH}/EntryDialog.cxx /

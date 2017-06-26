@@ -32,6 +32,8 @@ class HistoManager {
 
 		bool isGood() const { return good;};
 
+		unsigned int getNumberOfHistos() const { return guiHistosPrimary.size();};
+
 		MyHistogramWrapper* getGuiPrimaryHisto(unsigned int iHisto);
 
 	  MyHistogramWrapper* getGuiSecondaryHisto(unsigned int iHisto);

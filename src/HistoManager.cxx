@@ -61,12 +61,14 @@ void HistoManager::createLogicalHistos() {
 /////////////////////////////////////////////////////////
 void HistoManager::buildGuiHistos() {
 
+	std::string hNameSuffix = "";
 	for(unsigned int iCreator=0;iCreator<2 && iCreator<creators.size();++iCreator){
 		HistoCreator* aCreator = creators[iCreator];
 		auto it =aCreator->histos.begin();
 		int i=0;
+		if(iCreator==1) hNameSuffix = "Secondary";
 		for(auto &h: aCreator->hc.vec){
-      MyHistogramWrapper *aHisto = new MyHistogramWrapper(h.name,h.bins,h.min,h.max);
+      MyHistogramWrapper *aHisto = new MyHistogramWrapper((h.name+hNameSuffix).c_str(),h.bins,h.min,h.max);
       aHisto->setId(i);
 			aHisto->setCreator(aCreator);
 			aHisto->setBins(&(*it));
