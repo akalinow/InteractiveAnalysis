@@ -1,7 +1,7 @@
 {
 "dat_file1":{
    "options":{
-   	"numOfEvents":356572,
+   	"numOfEvents":3565728,
    	"treeName":"Summary/tree",
    	"branchName":"entry",
    	"myDataFile":"bindata_4Mu_Data",
