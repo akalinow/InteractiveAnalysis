@@ -44,6 +44,8 @@ class HistoManager {
 
 		std::vector<float> getHighCuts() const;
 
+		void updateHistos();
+
 		void drawHistos(TCanvas *aCanvas);
 
 		void buildGuiHistos();

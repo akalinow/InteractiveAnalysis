@@ -133,6 +133,12 @@ std::vector<float> HistoManager::getHighCuts() const{
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void HistoManager::updateHistos(){
+if(guiHistosPrimary.size()) guiHistosPrimary[0]->update();
+if(guiHistosSecondary.size()) guiHistosSecondary[0]->update();
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 void HistoManager::drawHistos(TCanvas *aCanvas){
 
 drawPrimaryHistos(aCanvas);
@@ -147,7 +153,11 @@ void HistoManager::drawPrimaryHistos(TCanvas *aCanvas){
   for(unsigned int iPad=0;iPad<9;++iPad){
 		if(iPad<guiHistosPrimary.size()) {
 			aCanvas->cd(iPad+1);
-			guiHistosPrimary[iPad]->getHisto()->Draw();
+			if(iPad==0){
+			guiHistosPrimary[iPad]->getHisto()->SetMarkerStyle(20);
+			guiHistosPrimary[iPad]->getHisto()->Draw("p");
+			}
+			else guiHistosPrimary[iPad]->getHisto()->Draw();
 		}
 	}
 }
@@ -165,6 +175,7 @@ void HistoManager::drawSecondaryHistos(TCanvas *aCanvas){
 			if(rightmax<1) rightmax = 1.0;
    		Float_t scale = gPad->GetUymax()/rightmax;
    		aHisto->SetLineColor(kRed);
+			aHisto->SetLineWidth(2);
    		aHisto->Scale(scale);
    		aHisto->DrawCopy("same hist");
 			aHisto->Scale(1.0/scale);

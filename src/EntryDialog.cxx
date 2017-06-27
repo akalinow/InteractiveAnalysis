@@ -1,53 +1,22 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <TROOT.h>
-#include <TApplication.h>
-#include <TVirtualX.h>
-#include <TVirtualPadEditor.h>
 #include <TGResourcePool.h>
-#include <TGListBox.h>
-#include <TGListTree.h>
-#include <TGFSContainer.h>
-#include <TGClient.h>
 #include <TGFrame.h>
-#include <TGIcon.h>
 #include <TGLabel.h>
-#include <TGButton.h>
 #include <TGTextEntry.h>
 #include <TGNumberEntry.h>
-#include <TGMsgBox.h>
-#include <TGMenu.h>
 #include <TGCanvas.h>
-#include <TGComboBox.h>
-#include <TGTab.h>
-#include <TGSlider.h>
-#include <TGDoubleSlider.h>
-#include <TGFileDialog.h>
-#include <TGTextEdit.h>
-#include <TGShutter.h>
-#include <TGProgressBar.h>
-#include <TGColorSelect.h>
-#include <TRootEmbeddedCanvas.h>
-#include <TCanvas.h>
-#include <TColor.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TRandom.h>
-#include <TSystem.h>
-#include <TSystemDirectory.h>
-#include <TEnv.h>
-#include <TFile.h>
-#include <TKey.h>
-#include <TGDockableFrame.h>
+#include <TGTableLayout.h>
 #include <TGFontDialog.h>
 
 #include <TCanvas.h>
-#include <TGTableLayout.h>
+#include <TH1.h>
 
-#include "EntryDialog.h"
-#include "MainFrame.h"
-#include "HistoManager.h"
+#include <EntryDialog.h>
+#include <MainFrame.h>
+#include <HistoManager.h>
+#include <ScrollFrame.h>
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -92,8 +61,6 @@ EntryDialog::~EntryDialog(){
 /////////////////////////////////////////////////////////
 void EntryDialog::initialize(HistoManager * aHistoManager){
 
-   //fGframeCuts = new TGGroupFrame(fF1, "Event selections:");
-
    fGCanvasCuts = new TGCanvas(fF1, 500, 520);
    fContainer = new TGCompositeFrame(fGCanvasCuts->GetViewPort(), kVerticalFrame);
    fGCanvasCuts->SetContainer(fContainer);
@@ -119,7 +86,7 @@ void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float 
       TGFont *myfont = fClient->GetFont("-adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1");
       if (myfont) myGC.SetFont(myfont->GetFontHandle());
 
-      TGHorizontalFrame *aHorizontalFrame = new TGHorizontalFrame(fContainer, 200, 30);
+      TGHorizontalFrame *aHorizontalFrame = new TGHorizontalFrame(fGCanvasCuts->GetContainer(), 200, 30);
       fF.push_back(aHorizontalFrame);
       fContainer->AddFrame(aHorizontalFrame, fL2);
 
@@ -143,18 +110,13 @@ void EntryDialog::addHistoCutsFrame(const std::string &hName, float lowX, float 
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void EntryDialog::HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents){
-
-  std::cout<<"iCut: "<<iCut
-    <<" value: "<<value
-    <<std::endl;
+void EntryDialog::HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents, Int_t nSecondaryEvents){
 
   if(isLow) fLowCuts[iCut]->SetNumber(value);
   else fHighCuts[iCut]->SetNumber(value);
 
   fDataLabelDATA->SetText(Form("%ld",nDataEvents));
-  fDataLabelMC->SetText(Form("%ld",0));
-
+  fDataLabelMC->SetText(Form("%ld",nSecondaryEvents));
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

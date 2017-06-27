@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 #include <TApplication.h>
 #include <MainFrame.h>
@@ -67,28 +68,17 @@ void MainFrame::AddTopMenu(){
 
    fMenuFile = new TGPopupMenu(fClient->GetRoot());
    fMenuFile->AddEntry("&Open...", M_FILE_OPEN);
-   fMenuFile->AddEntry("&Save", M_FILE_SAVE);
    fMenuFile->AddEntry("S&ave as...", M_FILE_SAVEAS);
-   fMenuFile->AddEntry("&Close", -1);
-   fMenuFile->AddSeparator();
-   fMenuFile->AddEntry("&Print", M_FILE_PRINT);
-   fMenuFile->AddEntry("P&rint setup...", M_FILE_PRINTSETUP);
    fMenuFile->AddSeparator();
    fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
-
-   fMenuFile->DisableEntry(M_FILE_SAVEAS);
-   fMenuFile->HideEntry(M_FILE_PRINT);
+   fMenuFile->Connect("Activated(Int_t)", "MainFrame", this,"HandleMenu(Int_t)");
 
    fMenuHelp = new TGPopupMenu(fClient->GetRoot());
    fMenuHelp->AddEntry("&Contents", M_HELP_CONTENTS);
    fMenuHelp->AddEntry("&Search...", M_HELP_SEARCH);
    fMenuHelp->AddSeparator();
    fMenuHelp->AddEntry("&About", M_HELP_ABOUT);
-
-   // Menu button messages are handled by the main frame (i.e. "this")
-   // ProcessMessage() method.
-   fMenuFile->Associate(this);
-   fMenuHelp->Associate(this);
+   fMenuHelp->Connect("Activated(Int_t)", "MainFrame", this,"HandleMenu(Int_t)");
 
    fMenuBar = new TGMenuBar(fMenuDock, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File", fMenuFile, menuBarItemLayout);
@@ -122,7 +112,6 @@ void MainFrame::AddHistoCanvas(){
    fCanvas = recanvas->GetCanvas();
    fCanvas->MoveOpaque(kFALSE);
    fCanvas->Divide(3,3);
-   //TVirtualPad *fPad = fCanvas->GetPad(1);
    fCanvas->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)",
                               "MainFrame", this,
                               "HandleEmbeddedCanvas(Int_t,Int_t,Int_t,TObject*)");
@@ -135,18 +124,21 @@ void MainFrame::AddButtons(){
 
    // The shape buttons
    const char* shape_button_name[] = {
-       "Ellipse", "Box", "Triangle", "Arrow", "Zoom Out", "Zoom In", "Close"
+       "Save selection", "Load Selection", "Triangle", "Arrow", "Zoom Out", "Zoom In", "Close"
    };
+
+   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_FILE_EXIT, 11, 12, 13};
+
    UInt_t ind;
    for (ind = 0; ind < 6; ++ind) {
-      TGTextButton* button = new TGTextButton(fFrame,shape_button_name[ind],ind);
+      TGTextButton* button = new TGTextButton(fFrame,shape_button_name[ind],button_id[ind]);
       TGTableLayoutHints *tloh = new TGTableLayoutHints(8,9,ind, ind+1,
                                     kLHintsExpandX|kLHintsExpandY |
                                     kLHintsShrinkX|kLHintsShrinkY |
                                     kLHintsFillX|kLHintsFillY);
       fFrame->AddFrame(button,tloh);
       button->Resize(50,button->GetDefaultHeight());
-      //button->Connect("Clicked()","MainFrame",this,"DoButton()");
+      button->Connect("Clicked()","MainFrame",this,"DoButton()");
    }
  }
 /////////////////////////////////////////////////////////
@@ -158,7 +150,8 @@ void MainFrame::AddNumbersDialog(){
                                     kLHintsExpandX|kLHintsExpandY |
                                     kLHintsShrinkX|kLHintsShrinkY |
                                     kLHintsFillX|kLHintsFillY);
-   this->Connect("CutChanged(Int_t, Bool_t, Float_t, Int_t)", "EntryDialog",fEntryDialog,"HandleCutChanged(Int_t, Bool_t, Float_t, Int_t)");
+   this->Connect("CutChanged(Int_t, Bool_t, Float_t, Int_t, Int_t)", "EntryDialog",fEntryDialog,
+               "HandleCutChanged(Int_t, Bool_t, Float_t, Int_t, Int_t)");
    fFrame->AddFrame(fEntryDialog,tloh);
  }
 /////////////////////////////////////////////////////////
@@ -172,9 +165,10 @@ void MainFrame::CloseWindow(){
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void MainFrame::CutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents){
+void MainFrame::CutChanged(Int_t iCut, Bool_t isLow, Float_t value,
+                           Int_t nDataEvents, Int_t nSecondaryEvents){
 
-EmitVA("CutChanged(Int_t, Bool_t, Float_t, Int_t)", 4, iCut, isLow, value, nDataEvents);
+EmitVA("CutChanged(Int_t, Bool_t, Float_t, Int_t, Int_t)", 5, iCut, isLow, value, nDataEvents, nSecondaryEvents);
 
 }
 /////////////////////////////////////////////////////////
@@ -182,8 +176,6 @@ EmitVA("CutChanged(Int_t, Bool_t, Float_t, Int_t)", 4, iCut, isLow, value, nData
 Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
    // Handle messages send to the MainFrame object. E.g. all menu button
    // messages.
-
-   std::cout<<"msg: "<<msg<<" parm1 "<<parm1<<std::endl;
 
    return kTRUE;
 }
@@ -209,6 +201,7 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
      fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
    }
 
+   fHistoManager->updateHistos();
    fHistoManager->drawHistos(fCanvas);
    fCanvas->Update();
 
@@ -253,11 +246,15 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
    }
 
      bool isLow = (fCutSide==-1);
+     fHistoManager->updateHistos();
      fHistoManager->drawHistos(fCanvas);
      int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
      float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
      if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
-     CutChanged(padNumber-1, isLow, cutValue, nDataEvents);
+
+     aHisto = fHistoManager->getGuiSecondaryHisto(padNumber-1)->getHisto();
+     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     CutChanged(padNumber-1, isLow, cutValue, nDataEvents, nSecondaryEvents);
      fCanvas->Update();
    }
     std::cout<<"MainFrame::HandleEmbeddedCanvas End"<<std::endl;
@@ -265,6 +262,112 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void MainFrame::SaveCuts(const std::string & filePath) const{
 
+ std::fstream outputFile(filePath.c_str(), std::ios::out);
+
+unsigned int nHistos = fHistoManager->getNumberOfHistos();
+for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
+     float theCut = fEntryDialog->getLowCut(iHisto)->GetNumber();
+     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
+     int binNumber = aHisto->FindBin(theCut);
+     if(binNumber>0) --binNumber;
+
+     outputFile<<binNumber<<" ";
+
+     theCut = fEntryDialog->getHighCut(iHisto)->GetNumber();
+     binNumber = aHisto->FindBin(theCut);
+     if(binNumber>0) --binNumber;
+
+     outputFile<<binNumber<<std::endl;
+   }
+   outputFile.close();
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::LoadCuts(const std::string & filePath){
+
+  std::fstream inputFile(filePath.c_str(), std::ios::in);
+
+   int binNumberLow, binNumberHigh;
+unsigned int nHistos = fHistoManager->getNumberOfHistos();
+for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
+     inputFile>>binNumberLow>>binNumberHigh;
+
+     fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumberLow);
+     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumberLow);
+
+     fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumberHigh);
+     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumberHigh);
+
+     if(iHisto==nHistos-1) fHistoManager->updateHistos();
+
+     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
+     int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     float cutValueLow = aHisto->GetXaxis()->GetBinLowEdge(binNumberLow+1);
+     float cutValueHigh = aHisto->GetXaxis()->GetBinUpEdge(binNumberHigh);
+
+     aHisto = fHistoManager->getGuiSecondaryHisto(iHisto)->getHisto();
+     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+
+     std::cout<<nHistos<<" "<<iHisto<<" "<<nDataEvents<<" "<<nSecondaryEvents<<std::endl;
+
+     CutChanged(iHisto, true, cutValueLow, nDataEvents, nSecondaryEvents);
+     CutChanged(iHisto, false, cutValueHigh, nDataEvents, nSecondaryEvents);
+   }
+   inputFile.close();
+
+   fHistoManager->getGuiPrimaryHisto(0)->getHisto()->Print();
+  fHistoManager->getGuiPrimaryHisto(1)->getHisto()->Print();
+   fHistoManager->getGuiPrimaryHisto(nHistos-1)->getHisto()->Print();
+
+   fHistoManager->drawHistos(fCanvas);
+   fCanvas->Update();
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::HandleMenu(Int_t id){
+
+  const char *filetypes[] = {
+   "Cuts files",    "*.dat",
+   "All files",     "*",
+    0,               0
+};
+
+  switch (id) {
+      case M_FILE_OPEN:
+         {
+            TGFileInfo fi;
+            fi.fFileTypes = filetypes;
+            fi.fIniDir    = StrDup(".");
+            new TGFileDialog(gClient->GetRoot(), this, kFDOpen, &fi);
+            LoadCuts(fi.fFilename);
+         }
+         break;
+
+      case M_FILE_SAVEAS:
+      {
+            TGFileInfo fi;
+            fi.fFileTypes = filetypes;
+            fi.fIniDir    = StrDup(".");
+            new TGFileDialog(gClient->GetRoot(), this, kFDSave, &fi);
+            SaveCuts(fi.fFilename);
+      }
+        break;
+
+      case M_FILE_EXIT:
+         CloseWindow();   // terminate theApp no need to use SendCloseMessage()
+         break;
+       }
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::DoButton(){
+ TGButton* button = (TGButton*)gTQSender;
+   UInt_t button_id = button->WidgetId();
+
+  HandleMenu(button_id);
+
+ }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

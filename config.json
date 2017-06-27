@@ -1,7 +1,7 @@
 {
 "dat_file1":{
    "options":{
-   	"numOfEvents":1679358,
+   	"numOfEvents":356572,
    	"treeName":"Summary/tree",
    	"branchName":"entry",
    	"myDataFile":"bindata_4Mu_Data",
@@ -13,12 +13,6 @@
    			"bins":128,
    			"min":0,
    			"max":256
-   		},
-      {
-   			"name":"nMuons",
-   			"bins":8,
-   			"min":0,
-   			"max":8
    		},
       {
    			"name":"massZ1",
@@ -33,26 +27,38 @@
    			"max":128
    		},
       {
+   			"name":"nMuons",
+   			"bins":8,
+   			"min":0,
+   			"max":8
+   		},
+      {
+   			"name":"trigger",
+   			"bins":2,
+   			"min":0,
+   			"max":1
+   		},
+      {
    			"name":"muon1Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
       {
    			"name":"muon2Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
       {
    			"name":"muon3Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
       {
    			"name":"muon4Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
@@ -129,52 +135,52 @@
    			"max":16
    		},
       {
-   			"name":"muon1Isolation",
+   			"name":"muon1Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
-   			"name":"muon2Isolation",
+   			"name":"muon2Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
-   			"name":"muon3Isolation",
+   			"name":"muon3Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
-   			"name":"muon4Isolation",
+   			"name":"muon4Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
    			"name":"muon1ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		},
       {
    			"name":"muon2ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		},
       {
    			"name":"muon3ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		},
       {
    			"name":"muon4ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		}
    ]
  },
@@ -194,12 +200,6 @@
    			"max":256
    		},
       {
-   			"name":"nMuons",
-   			"bins":8,
-   			"min":0,
-   			"max":8
-   		},
-      {
    			"name":"massZ1",
    			"bins":64,
    			"min":0,
@@ -212,26 +212,38 @@
    			"max":128
    		},
       {
+   			"name":"nMuons",
+   			"bins":8,
+   			"min":0,
+   			"max":8
+   		},
+      {
+   			"name":"trigger",
+   			"bins":2,
+   			"min":0,
+   			"max":1
+   		},
+      {
    			"name":"muon1Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
       {
    			"name":"muon2Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
       {
    			"name":"muon3Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
       {
    			"name":"muon4Pt",
-   			"bins":128,
+   			"bins":64,
    			"min":0,
    			"max":128
    		},
@@ -308,25 +320,25 @@
    			"max":16
    		},
       {
-   			"name":"muon1Isolation",
+   			"name":"muon1Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
-   			"name":"muon2Isolation",
+   			"name":"muon2Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
-   			"name":"muon3Isolation",
+   			"name":"muon3Isol",
    			"bins":32,
    			"min":0,
    			"max":5
    		},
       {
-   			"name":"muon4Isolation",
+   			"name":"muon4Isol",
    			"bins":32,
    			"min":0,
    			"max":5
@@ -339,21 +351,21 @@
    		},
       {
    			"name":"muon2ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		},
       {
    			"name":"muon3ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		},
       {
    			"name":"muon4ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		}
    ]
  }

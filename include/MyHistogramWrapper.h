@@ -42,6 +42,7 @@ class MyHistogramWrapper
         void setHisto();
         void setCutLow(int b);
         void setCutHigh(int b);
+        void update();
 
         int getICutLow() const {return cutLow;};
         int getICutHigh() const {return cutHigh;};

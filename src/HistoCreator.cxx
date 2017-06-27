@@ -67,7 +67,6 @@ void HistoCreator::createHistos() {
 	unsigned int nHistos = hc.vec.size();
 	unsigned int val [nHistos];
 
-	unsigned int tmp = 9;
 	unsigned int iHisto = 0, iHisto1 = 0;
 	bool eventPass = true;
 
@@ -80,7 +79,7 @@ void HistoCreator::createHistos() {
 					ids->skipData(nHistos - 1 - iHisto);
 				}
 			}
-			if(eventPass) for(iHisto=0;iHisto<tmp;++iHisto) histos[iHisto][val[iHisto]]++;
+			if(eventPass) for(iHisto=0;iHisto<nHistos;++iHisto) histos[iHisto][val[iHisto]]++;
 	}
 }
 void HistoCreator::createHistosOld() {

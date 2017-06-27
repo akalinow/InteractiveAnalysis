@@ -8,6 +8,7 @@
 #include <TGTableLayout.h>
 #include <TGMenu.h>
 #include <TRootEmbeddedCanvas.h>
+#include <TGFileDialog.h>
 
 #include <RQ_OBJECT.h>
 #include <TCanvas.h>
@@ -24,43 +25,10 @@ enum ETestCommandIdentifiers {
    M_FILE_PRINTSETUP,
    M_FILE_EXIT,
 
-   M_TEST_DLG,
-   M_TEST_MSGBOX,
-   M_TEST_SLIDER,
-   M_TEST_SHUTTER,
-   M_TEST_DIRLIST,
-   M_TEST_FILELIST,
-   M_TEST_PROGRESS,
-   M_TEST_NUMBERENTRY,
-   M_TEST_FONTDIALOG,
-   M_TEST_NEWMENU,
-
-   M_VIEW_ENBL_DOCK,
-   M_VIEW_ENBL_HIDE,
-   M_VIEW_DOCK,
-   M_VIEW_UNDOCK,
-
    M_HELP_CONTENTS,
    M_HELP_SEARCH,
    M_HELP_ABOUT,
 
-   M_CASCADE_1,
-   M_CASCADE_2,
-   M_CASCADE_3,
-
-   M_NEW_REMOVEMENU,
-
-   VId1,
-   HId1,
-   VId2,
-   HId2,
-
-   VSId1,
-   HSId1,
-   VSId2,
-   HSId2,
-
-   ColorSel
 };
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -81,7 +49,12 @@ public:
 
    void setHistoManager(HistoManager *aHistoManager);
 
-   void CutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents);
+   void CutChanged(Int_t iCut, Bool_t isLow, Float_t value,
+                   Int_t nDataEvents, Int_t nSecondaryEvents);
+
+   void HandleMenu(Int_t);
+
+   void DoButton();
 
 private:
 
@@ -90,6 +63,10 @@ private:
    void AddHistoCanvas();
    void AddButtons();
    void AddNumbersDialog();
+
+   void SaveCuts(const std::string & filePath) const;
+
+   void LoadCuts(const std::string & filePath);
 
    TGDockableFrame    *fMenuDock;
 

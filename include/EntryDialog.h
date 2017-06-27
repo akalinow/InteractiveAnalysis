@@ -11,6 +11,7 @@
 
 class MainFrame;
 class HistoManager;
+class ScrollFrame;
 
 class EntryDialog : public TGCompositeFrame {
 
@@ -23,7 +24,7 @@ public:
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
 
-   void HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents);
+   void HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_t nDataEvents, Int_t nSecondaryEvents);
 
    const TGNumberEntry * getLowCut(unsigned int iCut) const {return fLowCuts[iCut];};
 
@@ -44,7 +45,7 @@ private:
 
    TGLayoutHints        *fL1, *fL2, *fL3, *fL4;
 
-   TGGroupFrame *fGframeDATA, *fGframeMC;// *fGframeCuts;
+   TGGroupFrame *fGframeDATA, *fGframeMC;
    TGLabel *fDataLabelDATA, *fDataLabelMC;
 
    TGCanvas *fGCanvasCuts;
