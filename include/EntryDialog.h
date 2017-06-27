@@ -30,6 +30,8 @@ public:
 
    const TGNumberEntry * getHighCut(unsigned int iCut) const {return fHighCuts[iCut];};
 
+   void updateEventNumbers(unsigned int nDataEvents, unsigned int nSecondaryEvents);
+
 
 private:
 

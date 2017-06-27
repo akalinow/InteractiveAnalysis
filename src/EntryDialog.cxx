@@ -33,7 +33,9 @@ EntryDialog::EntryDialog(const TGWindow * p, MainFrame * aFrame)
 
 
    fF1 = new TGVerticalFrame(this, 300, 500);
-   fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
+   fL1 = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandY |
+                                    kLHintsShrinkX|kLHintsShrinkY |
+                                    kLHintsFillX|kLHintsFillY, 2, 2, 2, 2);
    AddFrame(fF1, fL1);
    fL2 = new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2);
    fL3 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 2, 2, 2, 2);
@@ -115,11 +117,21 @@ void EntryDialog::HandleCutChanged(Int_t iCut, Bool_t isLow, Float_t value, Int_
   if(isLow) fLowCuts[iCut]->SetNumber(value);
   else fHighCuts[iCut]->SetNumber(value);
 
-  fDataLabelDATA->SetText(Form("%ld",nDataEvents));
-  fDataLabelMC->SetText(Form("%ld",nSecondaryEvents));
+  updateEventNumbers(nDataEvents, nSecondaryEvents);
+
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void EntryDialog::updateEventNumbers(unsigned int nDataEvents,
+                                     unsigned int nSecondaryEvents){
+
+  fDataLabelDATA->SetText(Form("%ld",nDataEvents));
+  fDataLabelMC->SetText(Form("%ld",nSecondaryEvents));
+
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+
 Bool_t EntryDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t /*parm2*/){
    switch (GET_MSG(msg)) {
    case kC_COMMAND:

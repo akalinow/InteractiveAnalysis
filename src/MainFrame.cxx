@@ -4,6 +4,7 @@
 
 #include <TApplication.h>
 #include <MainFrame.h>
+#include <SelectionBox.h>
 
 #include <TStyle.h>
 #include <TH1F.h>
@@ -24,13 +25,8 @@ MainFrame::MainFrame(const TGWindow *p, UInt_t w, UInt_t h)
    SetTheFrame();
    AddHistoCanvas();
    AddButtons();
-  AddNumbersDialog();
+   AddNumbersDialog();
    SetWindowName("guiAnalysis");
-
-
-   //MapSubwindows();
-   //Resize();
-   //MapWindow();
  }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -45,14 +41,11 @@ MainFrame::~MainFrame(){
 void MainFrame::setHistoManager(HistoManager *aHistoManager) {
   fHistoManager = aHistoManager;
   if(fCanvas) fHistoManager->drawHistos(fCanvas);
-
-  //AddNumbersDialog();
   if(fEntryDialog) fEntryDialog->initialize(fHistoManager);
 
   MapSubwindows();
   Resize();
   MapWindow();
-
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -124,10 +117,10 @@ void MainFrame::AddButtons(){
 
    // The shape buttons
    const char* shape_button_name[] = {
-       "Save selection", "Load Selection", "Triangle", "Arrow", "Zoom Out", "Zoom In", "Close"
+       "Load thresholds", "Save thresholds", "Select histos", " ", " ", "Exit"
    };
 
-   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_FILE_EXIT, 11, 12, 13};
+   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, 11, 12, M_FILE_EXIT};
 
    UInt_t ind;
    for (ind = 0; ind < 6; ++ind) {
@@ -201,6 +194,13 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
      fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
    }
 
+   TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(0)->getHisto();
+   int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+
+   aHisto = fHistoManager->getGuiSecondaryHisto(0)->getHisto();
+   int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+
+   fEntryDialog->updateEventNumbers(nDataEvents, nSecondaryEvents);
    fHistoManager->updateHistos();
    fHistoManager->drawHistos(fCanvas);
    fCanvas->Update();
@@ -310,16 +310,10 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(iHisto)->getHisto();
      int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
 
-     std::cout<<nHistos<<" "<<iHisto<<" "<<nDataEvents<<" "<<nSecondaryEvents<<std::endl;
-
      CutChanged(iHisto, true, cutValueLow, nDataEvents, nSecondaryEvents);
      CutChanged(iHisto, false, cutValueHigh, nDataEvents, nSecondaryEvents);
    }
    inputFile.close();
-
-   fHistoManager->getGuiPrimaryHisto(0)->getHisto()->Print();
-  fHistoManager->getGuiPrimaryHisto(1)->getHisto()->Print();
-   fHistoManager->getGuiPrimaryHisto(nHistos-1)->getHisto()->Print();
 
    fHistoManager->drawHistos(fCanvas);
    fCanvas->Update();
@@ -362,12 +356,38 @@ void MainFrame::HandleMenu(Int_t id){
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void MainFrame::HandleHistoSelect(){
+
+  if(fSelectionBox){
+    std::cout<<" fSelectionBox = "<<fSelectionBox<<std::endl;
+    const TList* selHistos = fSelectionBox->GetSelected();
+    //std::cout<<"selHistos: "<<selHistos<<std::endl;
+    //selHistos->Print();
+//    for(const auto&& obj: *selHistos)
+  // std::cout<<obj->GetName()<<std::endl;
+  }
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 void MainFrame::DoButton(){
  TGButton* button = (TGButton*)gTQSender;
    UInt_t button_id = button->WidgetId();
 
-  HandleMenu(button_id);
-
+   switch (button_id) {
+      case M_FILE_OPEN:
+        HandleMenu(button_id);
+        break;
+      case M_FILE_SAVEAS:
+        HandleMenu(button_id);
+        break;
+      case M_FILE_EXIT:
+        HandleMenu(button_id);
+        break;
+      case M_BUTTON_SEL_HIST:
+        fSelectionBox = new SelectionBox(gClient->GetRoot(), this, 400, 200);
+        fSelectionBox->Initialize(fHistoManager->getHistoNames());
+        break;
+      }
  }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

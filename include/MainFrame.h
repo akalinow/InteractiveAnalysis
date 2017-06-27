@@ -16,6 +16,7 @@
 #include <TClass.h>
 #include <EntryDialog.h>
 #include <HistoManager.h>
+#include <SelectionBox.h>
 
 enum ETestCommandIdentifiers {
    M_FILE_OPEN,
@@ -29,6 +30,7 @@ enum ETestCommandIdentifiers {
    M_HELP_SEARCH,
    M_HELP_ABOUT,
 
+   M_BUTTON_SEL_HIST
 };
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -46,6 +48,8 @@ public:
     virtual Bool_t ProcessMessage(Long_t msg);
 
    void HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y, TObject *sel);
+
+   void HandleHistoSelect();
 
    void setHistoManager(HistoManager *aHistoManager);
 
@@ -83,6 +87,7 @@ private:
    EntryDialog *fEntryDialog;
 
    HistoManager *fHistoManager;
+   SelectionBox *fSelectionBox;
 
    int fCutSide = -1;
    bool fIgnoreCursor = true;

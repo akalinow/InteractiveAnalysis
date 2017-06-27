@@ -136,6 +136,10 @@ std::vector<float> HistoManager::getHighCuts() const{
 void HistoManager::updateHistos(){
 if(guiHistosPrimary.size()) guiHistosPrimary[0]->update();
 if(guiHistosSecondary.size()) guiHistosSecondary[0]->update();
+
+for(auto &aHisto :guiHistosPrimary) aHisto->setHisto();
+for(auto &aHisto :guiHistosSecondary) aHisto->setHisto();
+
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
