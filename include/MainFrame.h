@@ -49,7 +49,7 @@ public:
 
    void HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y, TObject *sel);
 
-   void HandleHistoSelect();
+   void HandleHistoSelect(Long_t);
 
    void setHistoManager(HistoManager *aHistoManager);
 
@@ -91,6 +91,7 @@ private:
 
    int fCutSide = -1;
    bool fIgnoreCursor = true;
+   std::vector<int> fSelectedHistos = {0,1,2,3,4,5,6,7,8};
 
 
 

@@ -143,37 +143,47 @@ for(auto &aHisto :guiHistosSecondary) aHisto->setHisto();
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void HistoManager::drawHistos(TCanvas *aCanvas){
+void HistoManager::drawHistos(TCanvas *aCanvas, const std::vector<int> & selectedHistos){
 
-drawPrimaryHistos(aCanvas);
-drawSecondaryHistos(aCanvas);
+aCanvas->Clear();
+aCanvas->Divide(3,3);
+drawPrimaryHistos(aCanvas, selectedHistos);
+drawSecondaryHistos(aCanvas, selectedHistos);
 
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void HistoManager::drawPrimaryHistos(TCanvas *aCanvas){
+void HistoManager::drawPrimaryHistos(TCanvas *aCanvas,
+						const std::vector<int> & selectedHistos){
+
+	unsigned int hIndex = 0;
 
   for(auto &aHisto :guiHistosPrimary) aHisto->setHisto();
   for(unsigned int iPad=0;iPad<9;++iPad){
-		if(iPad<guiHistosPrimary.size()) {
+		if(iPad<guiHistosPrimary.size() && iPad<selectedHistos.size()) {
 			aCanvas->cd(iPad+1);
+			hIndex = selectedHistos[iPad];
 			if(iPad==0){
-			guiHistosPrimary[iPad]->getHisto()->SetMarkerStyle(20);
-			guiHistosPrimary[iPad]->getHisto()->Draw("p");
+			guiHistosPrimary[hIndex]->getHisto()->SetMarkerStyle(20);
+			guiHistosPrimary[hIndex]->getHisto()->Draw("p");
 			}
-			else guiHistosPrimary[iPad]->getHisto()->Draw();
+			else guiHistosPrimary[hIndex]->getHisto()->Draw();
 		}
 	}
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void HistoManager::drawSecondaryHistos(TCanvas *aCanvas){
+void HistoManager::drawSecondaryHistos(TCanvas *aCanvas,
+const std::vector<int> & selectedHistos){
+
+  unsigned int hIndex = 0;
 
   for(auto &aHisto :guiHistosSecondary) aHisto->setHisto();
   for(unsigned int iPad=0;iPad<9;++iPad){
-		if(iPad<guiHistosSecondary.size()) {
+		if(iPad<guiHistosSecondary.size() && iPad<selectedHistos.size()) {
 			aCanvas->cd(iPad+1);
 			gPad->Update();
+			hIndex = selectedHistos[iPad];
       TH1F *aHisto = guiHistosSecondary[iPad]->getHisto();
    		Float_t rightmax = 1.1*aHisto->GetMaximum();
 			if(rightmax<1) rightmax = 1.0;
@@ -183,6 +193,7 @@ void HistoManager::drawSecondaryHistos(TCanvas *aCanvas){
    		aHisto->Scale(scale);
    		aHisto->DrawCopy("same hist");
 			aHisto->Scale(1.0/scale);
+			gPad->Update();
 
    //draw an axis on the right side
    TGaxis *axis = new TGaxis(gPad->GetUxmax(),gPad->GetUymin(),

@@ -20,7 +20,7 @@ private:
 
 public:
 
-   SelectionBox(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h,
+   SelectionBox(const TGWindow *p, TGWindow *main, UInt_t w, UInt_t h,
                 UInt_t options = kVerticalFrame);
    virtual ~SelectionBox();
 
@@ -29,7 +29,7 @@ public:
    void Initialize(const std::vector<std::string> &);
 
    void DoExit();
-   void DoSelect();
+   void DoSelect(Long_t msg = 0);
    void HandleButtons();
 
    ClassDef(SelectionBox, 0)

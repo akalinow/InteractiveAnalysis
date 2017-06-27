@@ -1,31 +1,22 @@
 #include <SelectionBox.h>
-
+#include <iostream>
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void SelectionBox::DoSelect()
-{
+void SelectionBox::DoSelect(Long_t msg){
    fSelected->Clear();
+   fListBox->GetSelectedEntries(fSelected);
 
-   if (fListBox->GetMultipleSelections()) {
-      Printf("Selected entries are:\n");
-      fListBox->GetSelectedEntries(fSelected);
-      fSelected->ls();
-   } else {
-      Printf("Selected entries is: %d\n", fListBox->GetSelected());
-   }
-
-   Emit("DoSelect()");
+   Emit("DoSelect(Long_t)",fSelected);
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void SelectionBox::DoExit(){
-
    fMain->CloseWindow();
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-SelectionBox::SelectionBox(const TGWindow *p, const TGWindow *main, UInt_t w,
+SelectionBox::SelectionBox(const TGWindow *p, TGWindow *main, UInt_t w,
                            UInt_t h, UInt_t options){
 
    fMain = new TGTransientFrame(p, main, w, h, options);
@@ -62,12 +53,10 @@ SelectionBox::SelectionBox(const TGWindow *p, const TGWindow *main, UInt_t w,
    fMain->CenterOnParent();
    fMain->SetWindowName("Histogram selection");
    fMain->MapWindow();
-
    fMain->MapSubwindows();
    fMain->Resize();
 
-   this->Connect("DoSelect()","MainFrame",fMain,"HandleHistoSelect()");
-
+   this->Connect("DoSelect(Long_t)","MainFrame",main,"HandleHistoSelect(Long_t)");
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

@@ -46,7 +46,7 @@ class HistoManager {
 
 		void updateHistos();
 
-		void drawHistos(TCanvas *aCanvas);
+		void drawHistos(TCanvas *aCanvas, const std::vector<int> & selectedHistos);
 
 		void buildGuiHistos();
 
@@ -56,9 +56,9 @@ class HistoManager {
 
 	private:
 
-		void drawPrimaryHistos(TCanvas *aCanvas);
+		void drawPrimaryHistos(TCanvas *aCanvas, const std::vector<int> & selectedHistos);
 
-		void drawSecondaryHistos(TCanvas *aCanvas);
+		void drawSecondaryHistos(TCanvas *aCanvas, const std::vector<int> & selectedHistos);
 
     ///HistoCreators, construct histograms, store bins to display
 		vector< HistoCreator* > creators;

@@ -62,6 +62,8 @@ void HistoCreator::processTree() {
  */
 void HistoCreator::createHistos() {
 
+	std::cout<<"Reloading histos"<<std::endl;
+
 	writeZeros();
 	IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
 	unsigned int nHistos = hc.vec.size();
@@ -81,6 +83,7 @@ void HistoCreator::createHistos() {
 			}
 			if(eventPass) for(iHisto=0;iHisto<nHistos;++iHisto) histos[iHisto][val[iHisto]]++;
 	}
+		std::cout<<"Reloading histos. DONE"<<std::endl;
 }
 void HistoCreator::createHistosOld() {
 	fstream file1(hc.myDataFile.c_str(), fstream::in | fstream::binary);

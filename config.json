@@ -345,9 +345,9 @@
    		},
       {
    			"name":"muon1ID",
-   			"bins":256,
+   			"bins":2,
    			"min":0,
-   			"max":256
+   			"max":1
    		},
       {
    			"name":"muon2ID",

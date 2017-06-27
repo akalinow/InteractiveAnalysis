@@ -17,6 +17,8 @@
 MainFrame::MainFrame(const TGWindow *p, UInt_t w, UInt_t h)
       : TGMainFrame(p, w, h){
 
+  fSelectionBox = 0;
+
    SetCleanup(kDeepCleanup);
    SetWMPosition(500,0);
    SetWMSize(1200,700);
@@ -40,7 +42,7 @@ MainFrame::~MainFrame(){
 /////////////////////////////////////////////////////////
 void MainFrame::setHistoManager(HistoManager *aHistoManager) {
   fHistoManager = aHistoManager;
-  if(fCanvas) fHistoManager->drawHistos(fCanvas);
+  if(fCanvas) fHistoManager->drawHistos(fCanvas, fSelectedHistos);
   if(fEntryDialog) fEntryDialog->initialize(fHistoManager);
 
   MapSubwindows();
@@ -176,8 +178,6 @@ Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
 /////////////////////////////////////////////////////////
 Bool_t MainFrame::ProcessMessage(Long_t msg){
 
-  std::cout<<"MainFrame::ProcessMessage Begin"<<std::endl;
-
    unsigned int nHistos = fHistoManager->getNumberOfHistos();
    for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      float theCut = fEntryDialog->getLowCut(iHisto)->GetNumber();
@@ -202,10 +202,8 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
 
    fEntryDialog->updateEventNumbers(nDataEvents, nSecondaryEvents);
    fHistoManager->updateHistos();
-   fHistoManager->drawHistos(fCanvas);
+   fHistoManager->drawHistos(fCanvas, fSelectedHistos);
    fCanvas->Update();
-
-     std::cout<<"MainFrame::ProcessMessage End"<<std::endl;
 
    return kTRUE;
 }
@@ -216,13 +214,8 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
 
   ///Enums defined in Buttons.h ROOT file.
   if(event == kButton1) fIgnoreCursor=!fIgnoreCursor;
-
   if(event == kButton2) fCutSide*=-1;
-
-
   if(event == kMouseMotion && !fIgnoreCursor){
-
-    std::cout<<"MainFrame::HandleEmbeddedCanvas Begin"<<std::endl;
 
      TObject *select = gPad->GetSelected();
      if(select && std::string(select->GetName())=="TFrame"){
@@ -230,40 +223,42 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
     TVirtualPad *aCurrentPad = gPad->GetSelectedPad();
     aCurrentPad->cd();
     int padNumber = aCurrentPad->GetNumber();
-    if(padNumber==1) return;
+    if(padNumber==1 || padNumber>=fSelectedHistos.size()) return;
+
+    int hIndex = fSelectedHistos[padNumber-1];
 
      float localX = aCurrentPad->AbsPixeltoX(x);
-     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(padNumber-1)->getHisto();
+     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(hIndex)->getHisto();
      int binNumber = aHisto->FindBin(localX);
 
      if(fCutSide==-1){
-     fHistoManager->getGuiPrimaryHisto(padNumber-1)->setCutLow(binNumber);
-     fHistoManager->getGuiSecondaryHisto(padNumber-1)->setCutLow(binNumber);
+     fHistoManager->getGuiPrimaryHisto(hIndex)->setCutLow(binNumber);
+     fHistoManager->getGuiSecondaryHisto(hIndex)->setCutLow(binNumber);
    }
    if(fCutSide==+1){
-      fHistoManager->getGuiPrimaryHisto(padNumber-1)->setCutHigh(binNumber);
-     fHistoManager->getGuiSecondaryHisto(padNumber-1)->setCutHigh(binNumber);
+      fHistoManager->getGuiPrimaryHisto(hIndex)->setCutHigh(binNumber);
+     fHistoManager->getGuiSecondaryHisto(hIndex)->setCutHigh(binNumber);
    }
 
      bool isLow = (fCutSide==-1);
      fHistoManager->updateHistos();
-     fHistoManager->drawHistos(fCanvas);
+     fHistoManager->drawHistos(fCanvas, fSelectedHistos);
      int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
      float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
      if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
 
-     aHisto = fHistoManager->getGuiSecondaryHisto(padNumber-1)->getHisto();
+     aHisto = fHistoManager->getGuiSecondaryHisto(hIndex)->getHisto();
      int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
-     CutChanged(padNumber-1, isLow, cutValue, nDataEvents, nSecondaryEvents);
+     CutChanged(hIndex, isLow, cutValue, nDataEvents, nSecondaryEvents);
      fCanvas->Update();
    }
-    std::cout<<"MainFrame::HandleEmbeddedCanvas End"<<std::endl;
  }
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void MainFrame::SaveCuts(const std::string & filePath) const{
 
+ if(!filePath.size()) return;
  std::fstream outputFile(filePath.c_str(), std::ios::out);
 
 unsigned int nHistos = fHistoManager->getNumberOfHistos();
@@ -287,6 +282,7 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
 /////////////////////////////////////////////////////////
 void MainFrame::LoadCuts(const std::string & filePath){
 
+ if(!filePath.size()) return;
   std::fstream inputFile(filePath.c_str(), std::ios::in);
 
    int binNumberLow, binNumberHigh;
@@ -315,7 +311,7 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
    }
    inputFile.close();
 
-   fHistoManager->drawHistos(fCanvas);
+   fHistoManager->drawHistos(fCanvas, fSelectedHistos);
    fCanvas->Update();
 }
 ////////////////////////////////////////////////////////
@@ -335,7 +331,9 @@ void MainFrame::HandleMenu(Int_t id){
             fi.fFileTypes = filetypes;
             fi.fIniDir    = StrDup(".");
             new TGFileDialog(gClient->GetRoot(), this, kFDOpen, &fi);
-            LoadCuts(fi.fFilename);
+            std::string fileName;
+            if(fi.fFilename) fileName.append(fi.fFilename);
+            LoadCuts(fileName);
          }
          break;
 
@@ -344,8 +342,11 @@ void MainFrame::HandleMenu(Int_t id){
             TGFileInfo fi;
             fi.fFileTypes = filetypes;
             fi.fIniDir    = StrDup(".");
+            fi.fFilename   = StrDup("selections.dat");
             new TGFileDialog(gClient->GetRoot(), this, kFDSave, &fi);
-            SaveCuts(fi.fFilename);
+            std::string fileName;
+            if(fi.fFilename) fileName.append(fi.fFilename);
+            SaveCuts(fileName);
       }
         break;
 
@@ -356,16 +357,20 @@ void MainFrame::HandleMenu(Int_t id){
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-void MainFrame::HandleHistoSelect(){
+void MainFrame::HandleHistoSelect(Long_t msg){
 
-  if(fSelectionBox){
-    std::cout<<" fSelectionBox = "<<fSelectionBox<<std::endl;
-    const TList* selHistos = fSelectionBox->GetSelected();
-    //std::cout<<"selHistos: "<<selHistos<<std::endl;
-    //selHistos->Print();
-//    for(const auto&& obj: *selHistos)
-  // std::cout<<obj->GetName()<<std::endl;
-  }
+    std::vector<std::string> hNames = fHistoManager->getHistoNames();
+    fSelectedHistos.clear();
+
+    const TList *aList = fSelectionBox->GetSelected();
+    for(const auto&& obj: *aList){
+    std::string hName(((TGTextLBEntry*)obj)->GetText()->GetString());
+    for(unsigned int hIndex=0;hIndex<hNames.size();++hIndex){
+      if(hName==hNames[hIndex]) fSelectedHistos.push_back(hIndex);
+      if(fSelectedHistos.size()==9) break;
+    }
+ }
+ fHistoManager->drawHistos(fCanvas, fSelectedHistos);
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -384,8 +389,8 @@ void MainFrame::DoButton(){
         HandleMenu(button_id);
         break;
       case M_BUTTON_SEL_HIST:
-        fSelectionBox = new SelectionBox(gClient->GetRoot(), this, 400, 200);
-        fSelectionBox->Initialize(fHistoManager->getHistoNames());
+          fSelectionBox = new SelectionBox(gClient->GetRoot(), this, 400, 200);
+          fSelectionBox->Initialize(fHistoManager->getHistoNames());
         break;
       }
  }
