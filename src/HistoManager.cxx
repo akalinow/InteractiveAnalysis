@@ -184,7 +184,7 @@ const std::vector<int> & selectedHistos){
 			aCanvas->cd(iPad+1);
 			gPad->Update();
 			hIndex = selectedHistos[iPad];
-      TH1F *aHisto = guiHistosSecondary[iPad]->getHisto();
+      TH1F *aHisto = guiHistosSecondary[hIndex]->getHisto();
    		Float_t rightmax = 1.1*aHisto->GetMaximum();
 			if(rightmax<1) rightmax = 1.0;
    		Float_t scale = gPad->GetUymax()/rightmax;

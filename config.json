@@ -1,7 +1,7 @@
 {
 "dat_file1":{
    "options":{
-   	"numOfEvents":3565728,
+   	"numOfEvents":3565723,
    	"treeName":"Summary/tree",
    	"branchName":"entry",
    	"myDataFile":"bindata_4Mu_Data",
@@ -34,9 +34,9 @@
    		},
       {
    			"name":"trigger",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon1Pt",
@@ -46,21 +46,21 @@
    		},
       {
    			"name":"muon2Pt",
-   			"bins":64,
+   			"bins":32,
    			"min":0,
-   			"max":128
+   			"max":64
    		},
       {
    			"name":"muon3Pt",
-   			"bins":64,
+   			"bins":32,
    			"min":0,
-   			"max":128
+   			"max":64
    		},
       {
    			"name":"muon4Pt",
-   			"bins":64,
+   			"bins":32,
    			"min":0,
-   			"max":128
+   			"max":64
    		},
       {
    			"name":"muon1Eta",
@@ -136,51 +136,51 @@
    		},
       {
    			"name":"muon1Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon2Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon3Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon4Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon1ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon2ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon3ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon4ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		}
    ]
  },
@@ -192,7 +192,7 @@
    	"myDataFile":"bindata_4Mu_MC",
     "rootDataFile":"RootAnalysis_Analysis4Mu_MC.root"
    },
-   "histos":[
+     "histos":[
    		{
    			"name":"mass4Mu",
    			"bins":128,
@@ -219,9 +219,9 @@
    		},
       {
    			"name":"trigger",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon1Pt",
@@ -231,21 +231,21 @@
    		},
       {
    			"name":"muon2Pt",
-   			"bins":64,
+   			"bins":32,
    			"min":0,
-   			"max":128
+   			"max":64
    		},
       {
    			"name":"muon3Pt",
-   			"bins":64,
+   			"bins":32,
    			"min":0,
-   			"max":128
+   			"max":64
    		},
       {
    			"name":"muon4Pt",
-   			"bins":64,
+   			"bins":32,
    			"min":0,
-   			"max":128
+   			"max":64
    		},
       {
    			"name":"muon1Eta",
@@ -321,51 +321,51 @@
    		},
       {
    			"name":"muon1Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon2Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon3Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon4Isol",
-   			"bins":32,
+   			"bins":16,
    			"min":0,
-   			"max":5
+   			"max":2
    		},
       {
    			"name":"muon1ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon2ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon3ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		},
       {
    			"name":"muon4ID",
-   			"bins":2,
-   			"min":0,
-   			"max":1
+   			"bins":4,
+   			"min":-1,
+   			"max":3
    		}
    ]
  }

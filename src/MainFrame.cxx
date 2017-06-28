@@ -119,10 +119,10 @@ void MainFrame::AddButtons(){
 
    // The shape buttons
    const char* shape_button_name[] = {
-       "Load thresholds", "Save thresholds", "Select histos", " ", " ", "Exit"
+       "Load thresholds", "Save thresholds", "Select histos", "Reset thresholds", " ", "Exit"
    };
 
-   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, 11, 12, M_FILE_EXIT};
+   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, M_BUTTON_RESET, 12, M_FILE_EXIT};
 
    UInt_t ind;
    for (ind = 0; ind < 6; ++ind) {
@@ -316,6 +316,38 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
+void MainFrame::ResetCuts(){
+
+int binNumberLow = 0, binNumberHigh;
+float cutValueLow = -999;
+float cutValueHigh = 999;
+unsigned int nHistos = fHistoManager->getNumberOfHistos();
+for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
+
+     binNumberHigh = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto()->GetNbinsX();
+     fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumberLow);
+     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumberLow);
+
+     fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumberHigh);
+     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumberHigh);
+
+     if(iHisto==nHistos-1) fHistoManager->updateHistos();
+
+     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
+     int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+
+     aHisto = fHistoManager->getGuiSecondaryHisto(iHisto)->getHisto();
+     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+
+     CutChanged(iHisto, true, cutValueLow, nDataEvents, nSecondaryEvents);
+     CutChanged(iHisto, false, cutValueHigh, nDataEvents, nSecondaryEvents);
+   }
+
+   fHistoManager->drawHistos(fCanvas, fSelectedHistos);
+   fCanvas->Update();
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 void MainFrame::HandleMenu(Int_t id){
 
   const char *filetypes[] = {
@@ -391,6 +423,9 @@ void MainFrame::DoButton(){
       case M_BUTTON_SEL_HIST:
           fSelectionBox = new SelectionBox(gClient->GetRoot(), this, 400, 200);
           fSelectionBox->Initialize(fHistoManager->getHistoNames());
+        break;
+      case M_BUTTON_RESET:
+          ResetCuts();
         break;
       }
  }

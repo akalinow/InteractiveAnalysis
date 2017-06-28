@@ -30,7 +30,8 @@ enum ETestCommandIdentifiers {
    M_HELP_SEARCH,
    M_HELP_ABOUT,
 
-   M_BUTTON_SEL_HIST
+   M_BUTTON_SEL_HIST,
+   M_BUTTON_RESET,
 };
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -71,6 +72,8 @@ private:
    void SaveCuts(const std::string & filePath) const;
 
    void LoadCuts(const std::string & filePath);
+
+   void ResetCuts();                 
 
    TGDockableFrame    *fMenuDock;
 
