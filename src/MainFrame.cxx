@@ -194,16 +194,16 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
      fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
    }
 
+   fHistoManager->updateHistos();
+   fHistoManager->drawHistos(fCanvas, fSelectedHistos);
+   fCanvas->Update();
+
    TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(0)->getHisto();
    int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
 
    aHisto = fHistoManager->getGuiSecondaryHisto(0)->getHisto();
    int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
-
    fEntryDialog->updateEventNumbers(nDataEvents, nSecondaryEvents);
-   fHistoManager->updateHistos();
-   fHistoManager->drawHistos(fCanvas, fSelectedHistos);
-   fCanvas->Update();
 
    return kTRUE;
 }
@@ -345,6 +345,7 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
 
    fHistoManager->drawHistos(fCanvas, fSelectedHistos);
    fCanvas->Update();
+   fIgnoreCursor = true;
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
