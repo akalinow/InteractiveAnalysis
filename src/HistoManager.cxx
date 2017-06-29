@@ -180,7 +180,7 @@ const std::vector<int> & selectedHistos){
 
   for(auto &aHisto :guiHistosSecondary) aHisto->setHisto();
   for(unsigned int iPad=0;iPad<9;++iPad){
-		if(iPad<guiHistosSecondary.size() && iPad<selectedHistos.size()) {
+		if(iPad!=0 && iPad<guiHistosSecondary.size() && iPad<selectedHistos.size()) {
 			aCanvas->cd(iPad+1);
 			gPad->Update();
 			hIndex = selectedHistos[iPad];

@@ -122,6 +122,13 @@ void MainFrame::AddButtons(){
        "Load thresholds", "Save thresholds", "Select histos", "Reset thresholds", " ", "Exit"
    };
 
+   const char* tooltips[] = {"Load thresholds on variables from a file.",
+                             "Save current thresholds on variables to a file.",
+                             "Select histograms to be displayed. Only first nine histograms will be shown.",
+                             "Reload the data and reset thresholds to initial (dummy) values.",
+                             " ",
+                             "Close the application"};
+
    unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, M_BUTTON_RESET, 12, M_FILE_EXIT};
 
    UInt_t ind;
@@ -134,6 +141,7 @@ void MainFrame::AddButtons(){
       fFrame->AddFrame(button,tloh);
       button->Resize(50,button->GetDefaultHeight());
       button->Connect("Clicked()","MainFrame",this,"DoButton()");
+      button->SetToolTipText(tooltips[ind]);
    }
  }
 /////////////////////////////////////////////////////////
@@ -223,7 +231,7 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
     TVirtualPad *aCurrentPad = gPad->GetSelectedPad();
     aCurrentPad->cd();
     int padNumber = aCurrentPad->GetNumber();
-    if(padNumber==1 || padNumber>=fSelectedHistos.size()) return;
+    if(padNumber==1 || padNumber>fSelectedHistos.size()) return;
 
     int hIndex = fSelectedHistos[padNumber-1];
 
