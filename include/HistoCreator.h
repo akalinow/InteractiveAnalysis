@@ -26,7 +26,6 @@ public:
 	HistoCreator(ptree pt );
 	void processTree();
 	void createHistos();
-	void createHistosOld();
 	void writeZeros();
 	void runTests();
 };

@@ -10,6 +10,7 @@
 #include <TH1F.h>
 #include <TGaxis.h>
 #include <TLine.h>
+#include <TArrow.h>
 #include <TFrame.h>
 
 /////////////////////////////////////////////////////////
@@ -18,6 +19,8 @@ MainFrame::MainFrame(const TGWindow *p, UInt_t w, UInt_t h)
       : TGMainFrame(p, w, h){
 
   fSelectionBox = 0;
+  fArrow = 0;
+  fLine = 0;
 
    SetCleanup(kDeepCleanup);
    SetWMPosition(500,0);
@@ -186,6 +189,8 @@ Bool_t MainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t){
 /////////////////////////////////////////////////////////
 Bool_t MainFrame::ProcessMessage(Long_t msg){
 
+  bool hasSecondaryHisto = fHistoManager->getGuiSecondaryHisto(0);
+
    unsigned int nHistos = fHistoManager->getNumberOfHistos();
    for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      float theCut = fEntryDialog->getLowCut(iHisto)->GetNumber();
@@ -193,13 +198,13 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
      int binNumber = aHisto->FindBin(theCut);
      if(binNumber>0) --binNumber;
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumber);
-     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumber);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumber);
 
      theCut = fEntryDialog->getHighCut(iHisto)->GetNumber();
      binNumber = aHisto->FindBin(theCut);
      if(binNumber>0) --binNumber;
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumber);
-     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumber);
    }
 
    fHistoManager->updateHistos();
@@ -209,8 +214,11 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
    TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(0)->getHisto();
    int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
 
-   aHisto = fHistoManager->getGuiSecondaryHisto(0)->getHisto();
-   int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+   int nSecondaryEvents = -1;
+   if(hasSecondaryHisto){
+     aHisto = fHistoManager->getGuiSecondaryHisto(0)->getHisto();
+     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+   }
    fEntryDialog->updateEventNumbers(nDataEvents, nSecondaryEvents);
 
    return kTRUE;
@@ -232,6 +240,7 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
     aCurrentPad->cd();
     int padNumber = aCurrentPad->GetNumber();
     if(padNumber==1 || padNumber>fSelectedHistos.size()) return;
+    bool hasSecondaryHisto = fHistoManager->getGuiSecondaryHisto(0);
 
     int hIndex = fSelectedHistos[padNumber-1];
 
@@ -241,22 +250,28 @@ void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
 
      if(fCutSide==-1){
      fHistoManager->getGuiPrimaryHisto(hIndex)->setCutLow(binNumber);
-     fHistoManager->getGuiSecondaryHisto(hIndex)->setCutLow(binNumber);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(hIndex)->setCutLow(binNumber);
    }
    if(fCutSide==+1){
       fHistoManager->getGuiPrimaryHisto(hIndex)->setCutHigh(binNumber);
-     fHistoManager->getGuiSecondaryHisto(hIndex)->setCutHigh(binNumber);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(hIndex)->setCutHigh(binNumber);
    }
 
      bool isLow = (fCutSide==-1);
+
      fHistoManager->updateHistos();
      fHistoManager->drawHistos(fCanvas, fSelectedHistos);
+     DrawCutMarker(padNumber, localX);
+
      int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
      float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
      if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
 
+     int nSecondaryEvents = -1;
+     if(hasSecondaryHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(hIndex)->getHisto();
-     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+    }
      CutChanged(hIndex, isLow, cutValue, nDataEvents, nSecondaryEvents);
      fCanvas->Update();
    }
@@ -294,15 +309,16 @@ void MainFrame::LoadCuts(const std::string & filePath){
   std::fstream inputFile(filePath.c_str(), std::ios::in);
 
    int binNumberLow, binNumberHigh;
+   bool hasSecondaryHisto = fHistoManager->getGuiSecondaryHisto(0);
 unsigned int nHistos = fHistoManager->getNumberOfHistos();
 for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      inputFile>>binNumberLow>>binNumberHigh;
 
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumberLow);
-     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumberLow);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumberLow);
 
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumberHigh);
-     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumberHigh);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumberHigh);
 
      if(iHisto==nHistos-1) fHistoManager->updateHistos();
 
@@ -311,8 +327,11 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      float cutValueLow = aHisto->GetXaxis()->GetBinLowEdge(binNumberLow+1);
      float cutValueHigh = aHisto->GetXaxis()->GetBinUpEdge(binNumberHigh);
 
+     int nSecondaryEvents = -1;
+     if(hasSecondaryHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(iHisto)->getHisto();
-     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+   }
 
      CutChanged(iHisto, true, cutValueLow, nDataEvents, nSecondaryEvents);
      CutChanged(iHisto, false, cutValueHigh, nDataEvents, nSecondaryEvents);
@@ -330,22 +349,26 @@ int binNumberLow = 0, binNumberHigh;
 float cutValueLow = -999;
 float cutValueHigh = 999;
 unsigned int nHistos = fHistoManager->getNumberOfHistos();
+bool hasSecondaryHisto = fHistoManager->getGuiSecondaryHisto(0);
 for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
 
      binNumberHigh = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto()->GetNbinsX();
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutLow(binNumberLow);
-     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumberLow);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(iHisto)->setCutLow(binNumberLow);
 
      fHistoManager->getGuiPrimaryHisto(iHisto)->setCutHigh(binNumberHigh);
-     fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumberHigh);
+     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(iHisto)->setCutHigh(binNumberHigh);
 
      if(iHisto==nHistos-1) fHistoManager->updateHistos();
 
      TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(iHisto)->getHisto();
      int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
 
+     int nSecondaryEvents = -1;
+     if(hasSecondaryHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(iHisto)->getHisto();
      int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+   }
 
      CutChanged(iHisto, true, cutValueLow, nDataEvents, nSecondaryEvents);
      CutChanged(iHisto, false, cutValueHigh, nDataEvents, nSecondaryEvents);
@@ -412,6 +435,7 @@ void MainFrame::HandleHistoSelect(Long_t msg){
     }
  }
  fHistoManager->drawHistos(fCanvas, fSelectedHistos);
+ fCanvas->Update();
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -438,5 +462,40 @@ void MainFrame::DoButton(){
         break;
       }
  }
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::DrawCutMarker(unsigned int iPad, float localX){
+
+  fCanvas->cd(iPad);
+  float xmin, xmax, ymin, ymax;
+
+  TFrame *aFrame = gPad->GetFrame();
+  if(aFrame){
+    xmin = gPad->GetFrame()->GetX1();
+    xmax = gPad->GetFrame()->GetX2();
+    ymin = gPad->GetFrame()->GetY1();
+    ymax = gPad->GetFrame()->GetY2();
+  }
+  else return;
+
+  if(!fArrow){
+    fArrow = new TArrow(0,0,0,0);
+    fArrow->SetLineColor(2);
+    fArrow->SetLineWidth(2);
+  }
+
+  if(!fLine){
+    fLine = new TLine(0,0,0,0);
+    fLine->SetLineColor(2);
+    fLine->SetLineWidth(2);
+  }
+
+  float y = ymax*0.6;
+  fLine->DrawLine(localX, ymin, localX, y);
+  y*=0.6;
+  float xStart = localX;
+  float xEnd = -fCutSide*(xmax-xmin)*0.1 + localX;
+  fArrow->DrawArrow(xStart,y,xEnd,y,0.01,"|>");
+}
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

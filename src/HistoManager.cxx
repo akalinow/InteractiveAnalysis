@@ -167,8 +167,9 @@ void HistoManager::drawPrimaryHistos(TCanvas *aCanvas,
 			guiHistosPrimary[hIndex]->getHisto()->SetMarkerStyle(20);
 			guiHistosPrimary[hIndex]->getHisto()->Draw("p");
 			}
-			else guiHistosPrimary[hIndex]->getHisto()->Draw();
+			else guiHistosPrimary[hIndex]->getHisto()->Draw("hist");
 		}
+		gPad->Update();
 	}
 }
 /////////////////////////////////////////////////////////

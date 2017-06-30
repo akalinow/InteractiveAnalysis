@@ -43,8 +43,8 @@ void HistoCreator::processTree() {
 	TFile * file = new TFile( hc.rootDataFile.c_str());
 	TTree* tree = (TTree*) file->Get(hc.treeName.c_str());
 	fstream file1(hc.myDataFile.c_str(), fstream::out | fstream::binary);
-	float val[32];
-	for (int i = 0; i < 32; ++i) val[i] = 0;
+	float val[64];
+	for (int i = 0; i < 64; ++i) val[i] = 0;
 	tree->SetBranchAddress(hc.branchName.c_str(), val);
 	for (int i = 0; i <  hc.numOfEvents; ++i) {
 		tree->GetEntry(i);
@@ -62,7 +62,7 @@ void HistoCreator::processTree() {
  */
 void HistoCreator::createHistos() {
 
-	std::cout<<"Reloading histos"<<std::endl;
+	//std::cout<<"Reloading histos"<<std::endl;
 
 	writeZeros();
 	IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
@@ -83,22 +83,7 @@ void HistoCreator::createHistos() {
 			}
 			if(eventPass) for(iHisto=0;iHisto<nHistos;++iHisto) histos[iHisto][val[iHisto]]++;
 	}
-		std::cout<<"Reloading histos. DONE"<<std::endl;
-}
-void HistoCreator::createHistosOld() {
-	fstream file1(hc.myDataFile.c_str(), fstream::in | fstream::binary);
-	unsigned int val [hc.vec.size()];
-	for (int i = 0; i < hc.numOfEvents; ++i) {
-
-			for (int k = 0; k < hc.vec.size(); ++k) {
-				val[k]=0;
-				file1.read((char*)(val+k), hc.vec[k].bytes);
-				histos[k][val[k]]++;
-
-//				//unsigned int j = hc.getBin(k, val[k]);
-//				file1.write((char*) &j, hc.vec[k].bytes);
-			}
-	}
+		//std::cout<<"Reloading histos. DONE"<<std::endl;
 }
 /**
  * Writes zeros to all histograms' bins
@@ -121,8 +106,8 @@ void HistoCreator::runTests(){
 	}
 	TFile * file = new TFile(hc.rootDataFile.c_str());
 	TTree* tree = (TTree*) file->Get(hc.treeName.c_str());
-	float val[32];
-	for (int i = 0; i < 32; ++i)val[i] = 0;
+	float val[64];
+	for (int i = 0; i < 64; ++i)val[i] = 0;
 	tree->SetBranchAddress(hc.branchName.c_str(), val);
 	for (int i = 0; i <  hc.numOfEvents; ++i) {
 			tree->GetEntry(i);

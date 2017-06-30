@@ -14,6 +14,9 @@
 #include <TCanvas.h>
 #include <TObject.h>
 #include <TClass.h>
+#include <TLine.h>
+#include <TArrow.h>
+
 #include <EntryDialog.h>
 #include <HistoManager.h>
 #include <SelectionBox.h>
@@ -70,10 +73,10 @@ private:
    void AddNumbersDialog();
 
    void SaveCuts(const std::string & filePath) const;
-
    void LoadCuts(const std::string & filePath);
+   void ResetCuts();
 
-   void ResetCuts();                 
+   void DrawCutMarker(unsigned int iPad, float localX);
 
    TGDockableFrame    *fMenuDock;
 
@@ -91,6 +94,9 @@ private:
 
    HistoManager *fHistoManager;
    SelectionBox *fSelectionBox;
+
+   TArrow *fArrow;
+   TLine *fLine;
 
    int fCutSide = -1;
    bool fIgnoreCursor = true;

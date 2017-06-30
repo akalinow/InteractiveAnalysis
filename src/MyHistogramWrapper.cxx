@@ -31,14 +31,20 @@ MyHistogramWrapper::~MyHistogramWrapper(){
 void MyHistogramWrapper::setHisto()
 {
 
-    for(int i =0;i<bins->size();++i) theHisto->SetBinContent(i+1,(*bins)[i]);
+    for(int i =0;i<bins->size();++i) {
+      theHisto->SetBinContent(i+1,(*bins)[i]);
+      if((*bins)[i]>0) theHisto->SetBinError(i+1,sqrt((*bins)[i]));
+      else theHisto->SetBinError(i+1,0);
+    }
 
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 void MyHistogramWrapper::setCutLow(int b) {
+
 	cutLow= b;
 	creator->cutsLow[histoId] = b;
+
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
