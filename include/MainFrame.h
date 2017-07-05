@@ -35,6 +35,7 @@ enum ETestCommandIdentifiers {
 
    M_BUTTON_SEL_HIST,
    M_BUTTON_RESET,
+   M_BUTTON_SHOW_LEGEND
 };
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -75,6 +76,7 @@ private:
    void SaveCuts(const std::string & filePath) const;
    void LoadCuts(const std::string & filePath);
    void ResetCuts();
+   void ShowLegend();
 
    void DrawCutMarker(unsigned int iPad, float localX);
 

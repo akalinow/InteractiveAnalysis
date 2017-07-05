@@ -126,7 +126,7 @@ void EntryDialog::updateEventNumbers(unsigned int nDataEvents,
                                      unsigned int nSecondaryEvents){
 
   fDataLabelDATA->SetText(Form("%ld",nDataEvents));
-  if(nSecondaryEvents< (unsigned int)(-1))  fDataLabelMC->SetText(Form("%ld",nSecondaryEvents));
+  if(nSecondaryEvents<(unsigned int)(-1)) fDataLabelMC->SetText(Form("%ld",nSecondaryEvents));
   fGCanvasCuts->Layout();
 }
 /////////////////////////////////////////////////////////

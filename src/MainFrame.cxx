@@ -122,7 +122,7 @@ void MainFrame::AddButtons(){
 
    // The shape buttons
    const char* shape_button_name[] = {
-       "Load thresholds", "Save thresholds", "Select histos", "Reset thresholds", " ", "Exit"
+       "Load thresholds", "Save thresholds", "Select histos", "Reset thresholds", "Show legend ", "Exit"
    };
 
    const char* tooltips[] = {"Load thresholds on variables from a file.",
@@ -132,7 +132,7 @@ void MainFrame::AddButtons(){
                              " ",
                              "Close the application"};
 
-   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, M_BUTTON_RESET, 12, M_FILE_EXIT};
+   unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, M_BUTTON_RESET, M_BUTTON_SHOW_LEGEND, M_FILE_EXIT};
 
    UInt_t ind;
    for (ind = 0; ind < 6; ++ind) {
@@ -217,7 +217,7 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
    int nSecondaryEvents = -1;
    if(hasSecondaryHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(0)->getHisto();
-     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
    }
    fEntryDialog->updateEventNumbers(nDataEvents, nSecondaryEvents);
 
@@ -459,6 +459,8 @@ void MainFrame::DoButton(){
         break;
       case M_BUTTON_RESET:
           ResetCuts();
+      case M_BUTTON_SHOW_LEGEND:
+          ShowLegend();
         break;
       }
  }
@@ -496,6 +498,13 @@ void MainFrame::DrawCutMarker(unsigned int iPad, float localX){
   float xStart = localX;
   float xEnd = -fCutSide*(xmax-xmin)*0.1 + localX;
   fArrow->DrawArrow(xStart,y,xEnd,y,0.01,"|>");
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::ShowLegend(){
+
+  std::cout<<"Show legend"<<std::endl;
+
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
