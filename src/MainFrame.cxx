@@ -217,7 +217,7 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
    int nSecondaryEvents = -1;
    if(hasSecondaryHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(0)->getHisto();
-     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
    }
    fEntryDialog->updateEventNumbers(nDataEvents, nSecondaryEvents);
 
