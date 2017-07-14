@@ -28,6 +28,9 @@ public:
 	void createHistos();
 	void writeZeros();
 	void runTests();
+
+	static const unsigned int maxNumberOfVariables = 64;
+
 };
 
 #endif /* INCLUDE_HISTOCREATOR_H_ */

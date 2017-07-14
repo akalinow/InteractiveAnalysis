@@ -65,6 +65,8 @@ public:
 
    void DoButton();
 
+   void CloseLegend();
+
 private:
 
    void AddTopMenu();
@@ -91,6 +93,8 @@ private:
 
    TGLayoutHints      *fFrameLayout;
    TGTableLayoutHints *fTCanvasLayout;
+
+   TGTransientFrame *fLegendMain;
 
    EntryDialog *fEntryDialog;
 

@@ -22,5 +22,7 @@ add_library(guiAnalysisLib SHARED ${PROJECT_SRC_PATH}/MainFrame.cxx ${PROJECT_SR
 
 
 add_executable(guiAnalysis bin/guiAnalysis.cxx)
+add_executable(parseTree bin/parseTree.cxx)
 
 target_link_libraries(guiAnalysis guiAnalysisLib ${ROOT_LIBRARIES})
+target_link_libraries(parseTree guiAnalysisLib ${ROOT_LIBRARIES})

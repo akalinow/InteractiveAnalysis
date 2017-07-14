@@ -43,8 +43,8 @@ void HistoCreator::processTree() {
 	TFile * file = new TFile( hc.rootDataFile.c_str());
 	TTree* tree = (TTree*) file->Get(hc.treeName.c_str());
 	fstream file1(hc.myDataFile.c_str(), fstream::out | fstream::binary);
-	float val[64];
-	for (int i = 0; i < 64; ++i) val[i] = 0;
+	float val[HistoCreator::maxNumberOfVariables];
+	for (int i = 0; i < HistoCreator::maxNumberOfVariables; ++i) val[i] = 0;
 	tree->SetBranchAddress(hc.branchName.c_str(), val);
 	for (int i = 0; i <  hc.numOfEvents; ++i) {
 		tree->GetEntry(i);
@@ -61,29 +61,20 @@ void HistoCreator::processTree() {
  * Loads data from DataSource and fills bins
  */
 void HistoCreator::createHistos() {
-
-	//std::cout<<"Reloading histos"<<std::endl;
-
 	writeZeros();
 	IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
-	unsigned int nHistos = hc.vec.size();
-	unsigned int val [nHistos];
-
-	unsigned int iHisto = 0, iHisto1 = 0;
-	bool eventPass = true;
-
-	for (unsigned int iEvent = 0; iEvent < hc.numOfEvents; ++iEvent){
-		 eventPass = true;
-			for (iHisto = 0; eventPass && iHisto < nHistos; ++iHisto){
-				val[iHisto]=ids->read(hc.vec[iHisto].bytes);
-				if(val[iHisto] < cutsLow[iHisto] or val[iHisto]>= cutsHigh[iHisto]){
-					eventPass = false;
-					ids->skipData(nHistos - 1 - iHisto);
-				}
+	unsigned int val [hc.vec.size()];
+	for (int i = 0; i < hc.numOfEvents; ++i){
+			int l = 0;
+			for (int k = 0; k < hc.vec.size(); ++k){
+				val[k]=ids->read( hc.vec[k].bytes);
+				if(val[k] < cutsLow[k] or val[k]>= cutsHigh[k]) l = hc.vec.size();
 			}
-			if(eventPass) for(iHisto=0;iHisto<nHistos;++iHisto) histos[iHisto][val[iHisto]]++;
+			for(;l<hc.vec.size();++l){
+				histos[l][val[l]]++;
+			}
+
 	}
-		//std::cout<<"Reloading histos. DONE"<<std::endl;
 }
 /**
  * Writes zeros to all histograms' bins
@@ -97,8 +88,8 @@ void HistoCreator::writeZeros() {
  * loads multiplexed data with createHistos() and checks whether got the same bin values in all the histograms
  */
 void HistoCreator::runTests(){
-	for(auto h:histos)
-		for(int i =0;i<h.size();++i) h[i]=0;
+
+	for(auto h:histos) for(int i =0;i<h.size();++i) h[i]=0;
 
 	vector< vector<unsigned int> > histos_copy;
 	for (int i = 0; i < hc.vec.size(); ++i) {
@@ -106,8 +97,8 @@ void HistoCreator::runTests(){
 	}
 	TFile * file = new TFile(hc.rootDataFile.c_str());
 	TTree* tree = (TTree*) file->Get(hc.treeName.c_str());
-	float val[64];
-	for (int i = 0; i < 64; ++i)val[i] = 0;
+	float val[HistoCreator::maxNumberOfVariables];
+	for (int i = 0; i < HistoCreator::maxNumberOfVariables; ++i) val[i] = 0;
 	tree->SetBranchAddress(hc.branchName.c_str(), val);
 	for (int i = 0; i <  hc.numOfEvents; ++i) {
 			tree->GetEntry(i);
@@ -121,15 +112,9 @@ void HistoCreator::runTests(){
 	int errors=0;
 	for(int i =0;i < histos.size();++i)
 		for(int j =0; j<histos[i].size();++j){
-			if(histos[i][j]!= histos_copy[i][j]){
-				std::cout<<"i: "<<i<<" j: "<<j<<" histos[i][j]: "<<histos[i][j]
-				         <<" histos_copy[i][j]: "<<histos_copy[i][j]<<std::endl;
-
-			}
-
 			errors+= histos[i][j]!= histos_copy[i][j];
 		}
 	cout<<"Errors: "<<errors<<".";
-	if(errors == 0) cout<<" Everything is fine.\n";
-	else cerr<<"What a terrible failure\n";
+	if(errors == 0) cout<<" Everything is fine."<<std::endl;
+	else cerr<<"What a terrible failure";
 }

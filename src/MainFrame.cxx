@@ -12,6 +12,7 @@
 #include <TLine.h>
 #include <TArrow.h>
 #include <TFrame.h>
+#include <TLegend.h>
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -21,6 +22,7 @@ MainFrame::MainFrame(const TGWindow *p, UInt_t w, UInt_t h)
   fSelectionBox = 0;
   fArrow = 0;
   fLine = 0;
+  fIgnoreCursor = true;
 
    SetCleanup(kDeepCleanup);
    SetWMPosition(500,0);
@@ -129,7 +131,7 @@ void MainFrame::AddButtons(){
                              "Save current thresholds on variables to a file.",
                              "Select histograms to be displayed. Only first nine histograms will be shown.",
                              "Reload the data and reset thresholds to initial (dummy) values.",
-                             " ",
+                             "Show a window with histograms legend.",
                              "Close the application"};
 
    unsigned int button_id[6] = {M_FILE_OPEN, M_FILE_SAVEAS, M_BUTTON_SEL_HIST, M_BUTTON_RESET, M_BUTTON_SHOW_LEGEND, M_FILE_EXIT};
@@ -503,8 +505,44 @@ void MainFrame::DrawCutMarker(unsigned int iPad, float localX){
 /////////////////////////////////////////////////////////
 void MainFrame::ShowLegend(){
 
-  std::cout<<"Show legend"<<std::endl;
+   fLegendMain = new TGTransientFrame(gClient->GetRoot(), this, 300, 500);
+   fLegendMain->Connect("CloseWindow()", "MainFrame", this, "CloseLegend()");
+   fLegendMain->DontCallClose(); // to avoid double deletions.
+   fLegendMain->SetCleanup(kDeepCleanup);
+   fLegendMain->Resize(250,120);
 
+   // The Canvas
+   TGCompositeFrame *aCanvasFrame = new TGCompositeFrame(fLegendMain, 100, 100, kHorizontalFrame);
+
+   TRootEmbeddedCanvas* legEmbCanvas = new TRootEmbeddedCanvas("Legend",fLegendMain,700,700);
+   fLegendMain->AddFrame(legEmbCanvas,fTCanvasLayout);
+   TCanvas *legCanvas = legEmbCanvas->GetCanvas();
+   legCanvas->cd();
+   TLegend *aLegend = new TLegend(0,0,1,1);
+
+   TH1 * hDataHisto = fHistoManager->getGuiPrimaryHisto(0)->getHisto();
+   TH1 * hSecondaryHisto = 0;
+   if(fHistoManager->getGuiSecondaryHisto(1)) hSecondaryHisto = fHistoManager->getGuiSecondaryHisto(1)->getHisto();
+
+   aLegend->AddEntry(hDataHisto,"DATA","lp");
+
+   if(fHistoManager->getGuiPrimaryHisto(1)) hDataHisto = fHistoManager->getGuiPrimaryHisto(1)->getHisto();
+   if(hDataHisto) aLegend->AddEntry(hDataHisto,"DATA","lp");
+   if(hSecondaryHisto) aLegend->AddEntry(hSecondaryHisto,"Monte Carlo simulation","lp");
+   aLegend->Draw();
+   legCanvas->Update();
+   fCanvas->cd();
+
+   fLegendMain->Layout();
+   fLegendMain->CenterOnParent();
+   fLegendMain->SetWindowName("Histogram legend");
+   fLegendMain->MapWindow();
+   fLegendMain->MapSubwindows();
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::CloseLegend(){
+  fLegendMain->CloseWindow();
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////

@@ -66,14 +66,8 @@ HistogramConfig::HistogramConfig(ptree pt){
 unsigned int HistogramConfig::getBin(int histo, float value) {
 
 	long int b = (long int) (( value - vec[histo].min)/(vec[histo].max - vec[histo].min) *  vec[histo].bins);
-	if(b<0) {
-		b=0;
-		cerr<<"\n" << value <<" out of range ["<<vec[histo].min<<", "<<vec[histo].max<< "]";
-	}
-	else if(b>=  vec[histo].bins){
-		b=vec[histo].bins;
-		cerr<<"\n" << value <<" out of range ["<<vec[histo].min<<", "<<vec[histo].max<< "]";
-	}
+	if(b<0) b=0;
+	else if(b>=vec[histo].bins) b=vec[histo].bins-1;
 	return (unsigned int)b;
 }
 
