@@ -369,7 +369,7 @@ for(unsigned int iHisto=0;iHisto<nHistos;++iHisto){
      int nSecondaryEvents = -1;
      if(hasSecondaryHisto){
      aHisto = fHistoManager->getGuiSecondaryHisto(iHisto)->getHisto();
-     int nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+     nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
    }
 
      CutChanged(iHisto, true, cutValueLow, nDataEvents, nSecondaryEvents);
@@ -461,6 +461,7 @@ void MainFrame::DoButton(){
         break;
       case M_BUTTON_RESET:
           ResetCuts();
+       break;  
       case M_BUTTON_SHOW_LEGEND:
           ShowLegend();
         break;
