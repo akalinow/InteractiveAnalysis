@@ -169,7 +169,6 @@ void HistoManager::drawPrimaryHistos(TCanvas *aCanvas,
 			}
 			else guiHistosPrimary[hIndex]->getHisto()->Draw("hist");
 		}
-		gPad->Update();
 	}
 }
 /////////////////////////////////////////////////////////
@@ -194,14 +193,16 @@ const std::vector<int> & selectedHistos){
    		aHisto->Scale(scale);
    		aHisto->DrawCopy("same hist");
 			aHisto->Scale(1.0/scale);
-			gPad->Update();
 
+			/*			
    //draw an axis on the right side
    TGaxis *axis = new TGaxis(gPad->GetUxmax(),gPad->GetUymin(),
          gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
    axis->SetLineColor(kRed);
    axis->SetLabelColor(kRed);
    axis->Draw();
+			*/
+			
 	}
 }
 }
