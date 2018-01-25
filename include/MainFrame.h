@@ -79,6 +79,7 @@ private:
    void LoadCuts(const std::string & filePath);
    void ResetCuts();
    void ShowLegend();
+   void SetCursorTheme();
 
    void DrawCutMarker(unsigned int iPad, float localX);
 

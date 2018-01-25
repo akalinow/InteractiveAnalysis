@@ -13,6 +13,7 @@
 #include <TArrow.h>
 #include <TFrame.h>
 #include <TLegend.h>
+#include <TVirtualX.h>
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -229,55 +230,66 @@ Bool_t MainFrame::ProcessMessage(Long_t msg){
 /////////////////////////////////////////////////////////
 void MainFrame::HandleEmbeddedCanvas(Int_t event, Int_t x, Int_t y,
                                       TObject *sel){
+    TObject *select = gPad->GetSelected();
 
-  ///Enums defined in Buttons.h ROOT file.
-  if(event == kButton1) fIgnoreCursor=!fIgnoreCursor;
-  if(event == kButton2) fCutSide*=-1;
-  if(event == kMouseMotion && !fIgnoreCursor){
-
-     TObject *select = gPad->GetSelected();
-     if(select && std::string(select->GetName())=="TFrame"){
-
-    TVirtualPad *aCurrentPad = gPad->GetSelectedPad();
-    aCurrentPad->cd();
-    int padNumber = aCurrentPad->GetNumber();
-    if(padNumber==1 || padNumber>fSelectedHistos.size()) return;
-    bool hasSecondaryHisto = fHistoManager->getGuiSecondaryHisto(0);
-
-    int hIndex = fSelectedHistos[padNumber-1];
-
-     float localX = aCurrentPad->AbsPixeltoX(x);
-     TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(hIndex)->getHisto();
-     int binNumber = aHisto->FindBin(localX);
-
-     if(fCutSide==-1){
-     fHistoManager->getGuiPrimaryHisto(hIndex)->setCutLow(binNumber);
-     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(hIndex)->setCutLow(binNumber);
-   }
-   if(fCutSide==+1){
-      fHistoManager->getGuiPrimaryHisto(hIndex)->setCutHigh(binNumber);
-     if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(hIndex)->setCutHigh(binNumber);
-   }
-
-     bool isLow = (fCutSide==-1);
-
-     fHistoManager->updateHistos();
-     fHistoManager->drawHistos(fCanvas, fSelectedHistos);
-     DrawCutMarker(padNumber, localX);
-
-     int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
-     float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
-     if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
-
-     int nSecondaryEvents = -1;
-     if(hasSecondaryHisto){
-     aHisto = fHistoManager->getGuiSecondaryHisto(hIndex)->getHisto();
-     nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+    ///Enums defined in Buttons.h ROOT file.
+    if(event == kButton1) fIgnoreCursor=!fIgnoreCursor;
+    if(event == kButton2){
+        fCutSide*=-1;
+        SetCursorTheme();
     }
-     CutChanged(hIndex, isLow, cutValue, nDataEvents, nSecondaryEvents);
-     fCanvas->Update();
-   }
- }
+
+    if(event == kMouseMotion && !fIgnoreCursor &&
+       select && std::string(select->GetName())=="TFrame"){
+        TVirtualPad *aCurrentPad = gPad->GetSelectedPad();
+        aCurrentPad->cd();
+        int padNumber = aCurrentPad->GetNumber();
+        if(padNumber==1 || padNumber>fSelectedHistos.size()) return;
+
+        SetCursorTheme();
+
+        bool hasSecondaryHisto = fHistoManager->getGuiSecondaryHisto(0);
+
+        int hIndex = fSelectedHistos[padNumber-1];
+
+        float localX = aCurrentPad->AbsPixeltoX(x);
+        TH1F *aHisto = fHistoManager->getGuiPrimaryHisto(hIndex)->getHisto();
+        int binNumber = aHisto->FindBin(localX);
+
+        if(fCutSide==-1){
+            fHistoManager->getGuiPrimaryHisto(hIndex)->setCutLow(binNumber);
+            if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(hIndex)->setCutLow(binNumber);
+        }
+        if(fCutSide==+1){
+            fHistoManager->getGuiPrimaryHisto(hIndex)->setCutHigh(binNumber);
+            if(hasSecondaryHisto) fHistoManager->getGuiSecondaryHisto(hIndex)->setCutHigh(binNumber);
+        }
+
+        bool isLow = (fCutSide==-1);
+
+        fHistoManager->updateHistos();
+        fHistoManager->drawHistos(fCanvas, fSelectedHistos);
+        DrawCutMarker(padNumber, localX);
+
+        int nDataEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+        float cutValue = aHisto->GetXaxis()->GetBinLowEdge(binNumber+1);
+        if(!isLow) cutValue = aHisto->GetXaxis()->GetBinUpEdge(binNumber);
+
+        int nSecondaryEvents = -1;
+        if(hasSecondaryHisto){
+            aHisto = fHistoManager->getGuiSecondaryHisto(hIndex)->getHisto();
+            nSecondaryEvents = aHisto->Integral(0,aHisto->GetNbinsX()+1);
+        }
+        CutChanged(hIndex, isLow, cutValue, nDataEvents, nSecondaryEvents);
+        fCanvas->Update();
+    }
+    else if(select && std::string(select->GetName())=="TFrame"){
+        TVirtualPad *aCurrentPad = gPad->GetSelectedPad();
+        int padNumber = aCurrentPad->GetNumber();
+        if(padNumber!=1 & padNumber<=fSelectedHistos.size()){
+            SetCursorTheme();
+        }
+    }
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -539,6 +551,14 @@ void MainFrame::ShowLegend(){
    fLegendMain->SetWindowName("Histogram legend");
    fLegendMain->MapWindow();
    fLegendMain->MapSubwindows();
+}
+////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+void MainFrame::SetCursorTheme(){
+    ECursor c;
+    if(fCutSide == 1) c = kLeftSide;
+    else c = kRightSide;
+    gPad->SetCursor(c);
 }
 ////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
