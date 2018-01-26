@@ -22,6 +22,7 @@ public:
 	vector<unsigned int> cutsLow,cutsHigh;
 	HistogramConfig hc;
 	vector< vector<unsigned int> > histos;
+    vector< vector<unsigned int> > data;
 	HistoCreator(string configPath );
 	HistoCreator(ptree pt );
 	void processTree();

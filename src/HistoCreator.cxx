@@ -11,6 +11,7 @@
 #include "TLeaf.h"
 #include<fstream>
 #include<iostream>
+#include<chrono>
 #include<DataSource.h>
 #include <HistoCreator.h>
 using namespace std;
@@ -24,6 +25,16 @@ HistoCreator::HistoCreator(string _configPath) :
 		cutsLow.push_back(0);
 		cutsHigh.push_back(hc.vec[i].bins);
 	}
+
+    IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
+	for (int i = 0; i < hc.numOfEvents; ++i){
+        vector<unsigned int> val(hc.vec.size(),0);
+        for (int k = 0; k < hc.vec.size(); ++k){
+            val[k]=ids->read( hc.vec[k].bytes);
+        }
+        data.push_back(val);
+    }
+
 }
 /**
  * Constructor takes configuration from boost::program_options ptree, loaded from json_config
@@ -35,6 +46,17 @@ HistoCreator::HistoCreator(ptree pt) :hc(pt)  {
 			cutsLow.push_back(0);
 				cutsHigh.push_back(hc.vec[i].bins);
 		}
+
+    // Reads data from file into data vector
+    IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
+	for (int i = 0; i < hc.numOfEvents; ++i){
+        vector<unsigned int> val(hc.vec.size(),0);
+        for (int k = 0; k < hc.vec.size(); ++k){
+            val[k]=ids->read( hc.vec[k].bytes);
+        }
+        data.push_back(val);
+    }
+
 }
 /**
  * Loads ROOT file from hc.rootDataFile path and saves multiplexed binary file to hc.myDataFile path/
@@ -58,22 +80,19 @@ void HistoCreator::processTree() {
 }
 
 /**
- * Loads data from DataSource and fills bins
+ * Clears and refills bins
  */
 void HistoCreator::createHistos() {
 	writeZeros();
-	IDataSource *ids= PreloadContainer::get().getDataSource(hc.myDataFile.c_str());
-	unsigned int val [hc.vec.size()];
-	for (int i = 0; i < hc.numOfEvents; ++i){
-			int l = 0;
-			for (int k = 0; k < hc.vec.size(); ++k){
-				val[k]=ids->read( hc.vec[k].bytes);
-				if(val[k] < cutsLow[k] or val[k]>= cutsHigh[k]) l = hc.vec.size();
-			}
-			for(;l<hc.vec.size();++l){
-				histos[l][val[l]]++;
-			}
 
+    for (auto&&  val : data){
+        int l = 0;
+        for (int k = 0; k < val.size(); ++k){
+            if(val[k] < cutsLow[k] or val[k]>= cutsHigh[k]) l = val.size();
+        }
+        for(;l<val.size();++l){
+            histos[l][val[l]]++;
+        }
 	}
 }
 /**
