@@ -23,8 +23,10 @@ using namespace std;
  */
 void fillBins(Task* task){
     size_t nHistos = task->histos.size();
+    // Iterates through specified range of data
     for(size_t i=task->start; i<task->end; i++){
         std::vector<unsigned int>& row = task->creator->data[i];
+        // If all values fit between set cuts adds values to certain bins
         int l = 0;
         for (int k = 0; k < nHistos; ++k){
             if(row[k] < task->creator->cutsLow[k] or row[k]>= task->creator->cutsHigh[k]) l = nHistos;
@@ -40,22 +42,23 @@ void fillBins(Task* task){
  * Returns if task.shutdown is true
  */
 void executeTasks(HistoCreator* creator){
-    while(true){
+    while(true){ // works until receives task with shutdown==true
         std::unique_lock<mutex> lock(creator->tasksMutex);
         while(creator->tasks.empty()){
-            creator->tasksNotEmpty.wait(lock);
+            creator->tasksNotEmpty.wait(lock); // waits for task to be sent
         }
+        // removes first element from tasks queue and executes it
         Task* task = creator->tasks.front();
         creator->tasks.pop();
         lock.unlock();
         if(task->shutdown){
-            return;
+            return; // returns if task is set to shutdown
         }
         fillBins(task);
         lock.lock();
         creator->tasksActive--;
         if(creator->tasksActive==0){
-            creator->allTasksDone.notify_one();
+            creator->allTasksDone.notify_one(); // notifies main thread if there are no active tasks
         }
         lock.unlock();
     }
@@ -110,6 +113,7 @@ HistoCreator::HistoCreator(ptree pt) :hc(pt)  {
     }
 }
 /**
+ * Explicit destructor for HistoCreator
  * Joins all threads
  */
 HistoCreator::~HistoCreator(){
@@ -117,12 +121,12 @@ HistoCreator::~HistoCreator(){
     task.shutdown = true;
     std::unique_lock<mutex> lock(tasksMutex);
     for(auto&& t: threads){
-        tasks.push(&task);
+        tasks.push(&task); // Sends shutdown tasks to all related threads
         tasksNotEmpty.notify_one();
     }
     lock.unlock();
     for(auto&& t: threads){
-        t.join();
+        t.join(); // Joins all related threads
     }
 }
 /**
@@ -145,13 +149,15 @@ void HistoCreator::processTree() {
 	file1.close();
 
 }
-
-
-
+/**
+ * Analyzes data and refills histos
+ * based on currently set cuts
+ */
 void HistoCreator::createHistos() {
-  
+    // Writes 0 to all bins
     writeZeros();
 
+    // Splits work into tasks and sends them to threads
     size_t numOfEvents = hc.numOfEvents;
     vector<Task> taskVector;
     std::unique_lock<mutex> lock(tasksMutex);
@@ -166,11 +172,11 @@ void HistoCreator::createHistos() {
         tasksNotEmpty.notify_one();
         tasksActive++;
     }
-
+    // Waits for all threads to finish tasks
     while(tasksActive!=0){
         allTasksDone.wait(lock);
     }
-
+    // Joins results for all threads
     for(auto&& task: taskVector){
         for(size_t j=0; j<histos.size(); j++){
             for(size_t k=0; k<histos[j].size(); k++){

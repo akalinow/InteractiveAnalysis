@@ -20,10 +20,10 @@ using std::vector;
 
 ///Task specifies range of data to be evaluated to create histograms
 struct Task {
-    class HistoCreator* creator;
-    std::vector< std::vector<unsigned int> > histos;
-    size_t start=0, end=0;
-    bool shutdown=false;
+    class HistoCreator* creator; // HistoCreator sending task
+    std::vector< std::vector<unsigned int> > histos; // storage of evaluated data
+    size_t start=0, end=0; // [start,end[ is range of creator->data to be evaluated
+    bool shutdown=false; // if shutdown==true thread returns and is deactivated
 };
 
 
@@ -36,7 +36,7 @@ public:
 	vector<unsigned int> cutsLow,cutsHigh;
 	HistogramConfig hc;
 	vector< vector<unsigned int> > histos;
-    vector< vector<unsigned int> > data;
+    vector< vector<unsigned int> > data; //data used to draw histograms
     std::queue<Task*> tasks; //queue of tasks to be executed by threads
     std::atomic<int> tasksActive{0}; //number of currently active tasks
     std::mutex tasksMutex; //mutex locking tasks queue and tasksActive counter
